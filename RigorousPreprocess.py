@@ -19,6 +19,8 @@ class MeshPreprocessor:
         self.targetVolume = targetVolume
         self.smoothMatrix = None
         self.isovalue = None
+        self.nonZeroShape = None
+        self.croppedMatrix = None
 
     def applyGaussianFilter(self, image):
         """
@@ -36,6 +38,27 @@ class MeshPreprocessor:
             return image
         filteredImage = gaussian_filter(image, sigma=self.sigma)
         return filteredImage
+
+    def cropLabels(self):
+        """
+        Crop zero labels to speed up following process
+
+        Returns:
+        - croppedM: numpy.ndarray
+          Cropped matrix
+        - nonZeroS: int
+          Bounds of the cropped matrix
+        """
+        # labelIncluded = self.smoothMatrix > self.isovalue
+        # nonZeroLabels = np.nonzero(labelIncluded)
+        nonZeroLabels = np.nonzero(self.smoothMatrix)
+        lowerBound = np.min(nonZeroLabels, axis = 1)
+        upperBound = np.max(nonZeroLabels, axis = 1) + 1
+        croppedM = self.smoothMatrix[lowerBound[0]:upperBound[0], 
+                                     lowerBound[1]:upperBound[1], 
+                                     lowerBound[2]:upperBound[2]]
+        nonZeroS = [lowerBound, upperBound]
+        return croppedM, nonZeroS
 
     def meshPreprocessing(self):
         """
@@ -77,4 +100,6 @@ class MeshPreprocessor:
             if smoothedVolume<originalVolume: volumeDiff = 1
             v = -1/(np.log(np.abs(smoothedVolume - originalVolume) / originalVolume)) * volumeDiff
 
-        return self.smoothMatrix, self.isovalue
+        self.croppedMatrix, self.nonZeroShape = self.cropLabels()
+
+        return self.smoothMatrix, self.isovalue, self.croppedMatrix, self.nonZeroShape
