@@ -7,5 +7,3 @@ end
 
 newM = pyrunfile("UpsampleLabel.py","newMatrix", originalMatrix = py.numpy.array(originalMatrix), sigma = sigma, targetVolume = Volume, scale = dx);
 UpsampledMatrix = single(newM);
-UpsampledMatrix = permute(UpsampledMatrix,[3,2,1]);
-
