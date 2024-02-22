@@ -31,7 +31,8 @@ class IsosurfaceExtractor:
           The vtkPolyData object representing the isosurface.
         """
         data = vtk.vtkImageData()
-        data.SetDimensions(self.array.shape)
+        x, y, z = self.array.shape
+        data.SetDimensions(z, y, x)
         data.SetSpacing(1, 1, 1)
         data.SetOrigin(0, 0, 0)
 
@@ -47,8 +48,19 @@ class IsosurfaceExtractor:
         surface.SetValue(0, self.threshold)
         surface.Update()
 
+        # Fill holes in the mesh
+        fill = vtk.vtkFillHolesFilter()
+        fill.SetInputConnection(surface.GetOutputPort())
+        fill.SetHoleSize(5)
+        fill.Update()
+    
+        # Remove any duplicate points
+        cleanFilter = vtk.vtkCleanPolyData()
+        cleanFilter.SetInputConnection(fill.GetOutputPort())
+        cleanFilter.Update()
+
         # Get faces and nodes of the isosurface
-        polyData = surface.GetOutput()
+        polyData = cleanFilter.GetOutput()
 
         # Extract faces
         self.faces = []
