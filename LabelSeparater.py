@@ -3,6 +3,24 @@ import numpy as np
 class LabelSeparation:
     """
     A class for separating labels in a matrix and analyzing label volumes.
+
+    Attributes:
+    ----------
+    multiLabelMatrix : numpy.ndarray
+        Matrix with integer labels.
+    x : int
+        Size of the matrix along the x-axis.
+    y : int
+        Size of the matrix along the y-axis.
+    z : int
+        Size of the matrix along the z-axis.
+    labels : numpy.ndarray
+        Array of unique labels in the matrix.
+    separateMatrix : numpy.ndarray
+        4D array where each slice along the first axis contains a binary matrix
+        for each label.
+    labelVolume : numpy.ndarray
+        Array containing the volume (number of elements) for each label.
     """
 
     def __init__(self, multiLabelMatrix):
@@ -10,7 +28,9 @@ class LabelSeparation:
         Initialize the LabelSeparation instance.
 
         Parameters:
-        - multiLabelMatrix (numpy.ndarray): Matrix with integer labels.
+        ----------
+        multiLabelMatrix : numpy.ndarray
+            Matrix with integer labels.
         """
         self.multiLabelMatrix = multiLabelMatrix
         self.x, self.y, self.z = multiLabelMatrix.shape
@@ -31,6 +51,7 @@ class LabelSeparation:
             # Calculate the sum of the binary matrix to get the label volume
             self.labelVolume[i] = np.sum(self.separateMatrix[i])
 
+        # Sort labels by volume in descending order
         sortedLabels = np.argsort(self.labelVolume)[::-1]
 
         # Use the sorted indices to rearrange attributes
@@ -43,6 +64,8 @@ class LabelSeparation:
         Get the separated matrices, label volumes, and labels.
 
         Returns:
-        - tuple: A tuple containing the separated matrices, label volumes, and labels.
+        -------
+        tuple:
+            A tuple containing the separated matrices, label volumes, and labels.
         """
         return np.float32(self.separateMatrix), self.labelVolume, self.labels

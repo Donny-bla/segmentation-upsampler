@@ -1,4 +1,4 @@
-#from Preprocess import MeshPreprocessor
+# Import necessary classes and functions
 from RigorousPreprocess import MeshPreprocessor
 from Extractor import IsosurfaceExtractor
 from Voxelizer import MeshVoxelizer
@@ -6,34 +6,33 @@ from LabelSeparater import LabelSeparation
 from scipy.ndimage import gaussian_filter
 import numpy as np
 
+# Initialize background matrix for voxelization
 gx, gy, gz = np.shape(multiLabelMatrix)
-background = np.zeros((int(gx / scale),
-                        int(gy / scale),
-                        int(gz / scale)), dtype=np.uint8)
+background = np.zeros((int(gx / scale), int(gy / scale), int(gz / scale)), dtype=np.uint8)
 
+# Initialize LabelSeparation instance and separate labels
 labelSeparationInstance = LabelSeparation(multiLabelMatrix)
 labelSeparationInstance.separateLabels()
 separateMatrices, labelVolume, labels = labelSeparationInstance.getResults()
-print(labels)
-#singleLabelMatrix = separateMatrices[0]
-#preprocessor = MeshPreprocessor(singleLabelMatrix, sigma, targetVolume)
-#smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing()
-#
+
+# Loop through each label, preprocess, extract isosurface, and voxelize
 for i in range(len(separateMatrices)):
     singleLabelMatrix = separateMatrices[i]
     label = labels[i]
-    print(singleLabelMatrix.shape, label)
 
+    # Preprocess the individual label matrix
     preprocessor = MeshPreprocessor(singleLabelMatrix, sigma, targetVolume)
-    smoothedMatrix, isovalue, croppedMatrix, bounds  = preprocessor.meshPreprocessing() #
+    smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing()
     croppedMatrix = np.ascontiguousarray(croppedMatrix)
-    print(croppedMatrix.shape)
 
-    isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, isovalue)
+    # Extract isosurface
+    isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
-    
+
+    # Voxelize the isosurface
     x, y, z = np.shape(croppedMatrix)
     voxelizer = MeshVoxelizer(polyData, x, y, z, scale, background, bounds, label)
     background = voxelizer.voxeliseMesh()
 
+# Resulting voxelized matrix
 newMatrix = background
