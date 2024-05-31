@@ -2,15 +2,33 @@ import vtk
 import numpy as np
 
 class IsosurfaceExtractor:
+    """
+    A class to extract isosurfaces from a 3D array using a specified threshold.
+
+    Attributes:
+    -----------
+    array : numpy.ndarray
+        The 3D array from which the isosurface is extracted.
+    threshold : float
+        The threshold value for isosurface extraction.
+    faces : numpy.ndarray, optional
+        Array representing the faces of the extracted isosurface.
+    nodes : numpy.ndarray, optional
+        Array representing the nodes of the extracted isosurface.
+    polyData : vtk.vtkPolyData, optional
+        The vtkPolyData object representing the isosurface.
+    """
+
     def __init__(self, array, threshold):
         """
         Initialize the IsosurfaceExtractor.
 
         Parameters:
-        - array: numpy.ndarray
-          3D array from which the isosurface is extracted.
-        - threshold: float
-          Threshold value for isosurface extraction.
+        ----------
+        array : numpy.ndarray
+            3D array from which the isosurface is extracted.
+        threshold : float
+            Threshold value for isosurface extraction.
         """
         self.array = array
         self.threshold = threshold
@@ -23,13 +41,15 @@ class IsosurfaceExtractor:
         Extracts the isosurface from the 3D array and saves the results.
 
         Returns:
-        - faces: numpy.ndarray
-          Array representing the faces of the extracted isosurface.
-        - nodes: numpy.ndarray
-          Array representing the nodes of the extracted isosurface.
-        - polyData: vtk.vtkPolyData
-          The vtkPolyData object representing the isosurface.
+        -------
+        faces : numpy.ndarray
+            Array representing the faces of the extracted isosurface.
+        nodes : numpy.ndarray
+            Array representing the nodes of the extracted isosurface.
+        polyData : vtk.vtkPolyData
+            The vtkPolyData object representing the isosurface.
         """
+        # Convert the numpy array to a VTK image data
         data = vtk.vtkImageData()
         x, y, z = self.array.shape
         data.SetDimensions(z, y, x)
@@ -42,7 +62,7 @@ class IsosurfaceExtractor:
 
         data.GetPointData().SetScalars(vtkDataArray)
 
-        # Extract isosurface
+        # Extract the isosurface using the FlyingEdges3D algorithm
         surface = vtk.vtkFlyingEdges3D()
         surface.SetInputData(data)
         surface.SetValue(0, self.threshold)
@@ -51,7 +71,7 @@ class IsosurfaceExtractor:
         # Fill holes in the mesh
         fill = vtk.vtkFillHolesFilter()
         fill.SetInputConnection(surface.GetOutputPort())
-        fill.SetHoleSize(5)
+        fill.SetHoleSize(3)
         fill.Update()
     
         # Remove any duplicate points
@@ -59,10 +79,10 @@ class IsosurfaceExtractor:
         cleanFilter.SetInputConnection(fill.GetOutputPort())
         cleanFilter.Update()
 
-        # Get faces and nodes of the isosurface
+        # Get the cleaned isosurface
         polyData = cleanFilter.GetOutput()
 
-        # Extract faces
+        # Extract faces from the isosurface
         self.faces = []
         cells = polyData.GetPolys()
         cells.InitTraversal()
@@ -70,7 +90,7 @@ class IsosurfaceExtractor:
         while cells.GetNextCell(idList):
             self.faces.append([idList.GetId(0), idList.GetId(1), idList.GetId(2)])
 
-        # Extract nodes
+        # Extract nodes from the isosurface
         self.nodes = []
         points = polyData.GetPoints()
         for i in range(points.GetNumberOfPoints()):
@@ -79,5 +99,3 @@ class IsosurfaceExtractor:
         self.polyData = polyData
 
         return np.array(self.faces), np.array(self.nodes), self.polyData
-
-
