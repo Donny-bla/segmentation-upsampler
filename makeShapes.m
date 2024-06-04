@@ -81,7 +81,49 @@ switch(shapeType)
                 shapeObject(:, :, kk) = plane;
             end
         end
-    % Other cases omitted for brevity
+    case ShapeTypes.Cone
+        halfH = floor(objectSize(2) / 2) + 1;
+        for kk = objectPosition(3) - halfH: objectPosition(3) + (objectSize(2)-halfH)
+            if(kk < 0 || kk > gridSize(3))
+                continue;
+            end
+            plane = zeros(gridSize(1),gridSize(2));
+            r = objectSize(1) - floor(objectSize(1)/objectSize(2) * (kk- (objectPosition(3) - halfH)));
+            for ii=1:gridSize(1)
+                for jj=1:gridSize(2)
+                    coord = [ii - objectPosition(1), jj - objectPosition(2)];
+                    if(coord(1)^2 + coord(2)^2 <= r^2)
+                        plane(ii,jj) = 1;
+                    end
+                end
+            end            
+            shapeObject(: , : , kk) = plane;
+        end
+    case ShapeTypes.BallHole
+        hole = makeShapes("Cylinder", [objectSize(2),gridSize(3)], gridSize, objectPosition);
+        shapeObject = makeShapes("Ball", [objectSize(1)], gridSize, objectPosition) - hole;
+        shapeObject = single(shapeObject>0);
+    case ShapeTypes.CubeHole
+        hole = makeShapes("Cylinder", [objectSize(2),gridSize(3)], gridSize, objectPosition);
+        shapeObject = makeShapes("Cube", [objectSize(1)], gridSize, objectPosition) - hole;
+        shapeObject = single(shapeObject>0);
+    case ShapeTypes.Complex
+        base = makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2), objectPosition(3), objectSize(1));
+        shapeObject = base - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2) - objectSize(1), objectPosition(3), floor(objectSize(1)/2));
+        shapeObject = shapeObject - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2) + objectSize(1), objectPosition(3), floor(objectSize(1)/3));
+        shapeObject = shapeObject - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1) - objectSize(1), objectPosition(2), objectPosition(3), floor(objectSize(1)/4));
+        shapeObject = shapeObject - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1) + objectSize(1), objectPosition(2), objectPosition(3), floor(objectSize(1)/5));
+        shapeObject = shapeObject - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2), objectPosition(3) - objectSize(1), floor(objectSize(1)*2/3));
+        shapeObject = shapeObject - makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2), objectPosition(3) + objectSize(1), floor(objectSize(1)*3/4));
+        shapeObject = single(shapeObject>0);
+    case ShapeTypes.MultiLabel
+        base = makeShapes("Complex", objectSize, gridSize, objectPosition);
+        shapeObject = base + 2 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2) - objectSize(1), objectPosition(3), floor(objectSize(1)/2));
+        shapeObject = shapeObject + 3 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2) + objectSize(1), objectPosition(3), floor(objectSize(1)/3));
+        shapeObject = shapeObject + 4 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1) - objectSize(1), objectPosition(2), objectPosition(3), floor(objectSize(1)/4));
+        shapeObject = shapeObject + 5 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1) + objectSize(1), objectPosition(2), objectPosition(3), floor(objectSize(1)/5));
+        shapeObject = shapeObject + 6 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2), objectPosition(3) - objectSize(1), floor(objectSize(1)*2/3));
+        shapeObject = shapeObject + 7 * makeBall(gridSize(1), gridSize(2), gridSize(3), objectPosition(1), objectPosition(2), objectPosition(3) + objectSize(1), floor(objectSize(1)*3/4));
 end
 
 end
