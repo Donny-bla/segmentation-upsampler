@@ -7,9 +7,9 @@
 % N: Grid size for the low-resolution grid
 % radius: Radius of the shape
 % dx: Grid spacing for upsampling
-% sigma: Gaussian smoothing parameter (not applied)
-% isovalue: Isovalue for isosurface extraction
-% Volume: Target volume for upsampling
+% sigma: Gaussian smoothing parameter 
+% isovalue: Isovalue for isosurface extraction (will be ignored unless Volume is not applied)
+% Volume: Target volume for upsampling (0 to not applied)
 % Nref: Grid size for the reference data
 % radiusRef: Radius for the reference shape
 N = 60;                       
