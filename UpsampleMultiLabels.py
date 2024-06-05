@@ -14,7 +14,7 @@ background = np.zeros((int(gx / scale), int(gy / scale), int(gz / scale)), dtype
 labelSeparationInstance = LabelSeparation(multiLabelMatrix)
 labelSeparationInstance.separateLabels()
 separateMatrices, labelVolume, labels = labelSeparationInstance.getResults()
-
+print(len(separateMatrices))
 # Loop through each label, preprocess, extract isosurface, and voxelize
 for i in range(len(separateMatrices)):
     singleLabelMatrix = separateMatrices[i]
@@ -25,6 +25,10 @@ for i in range(len(separateMatrices)):
     smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing()
     croppedMatrix = np.ascontiguousarray(croppedMatrix)
 
+    if targetVolume:
+        iso = isovalue
+    print("isovalue for label",i, "is:", iso)
+    
     # Extract isosurface
     isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
