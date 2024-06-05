@@ -10,7 +10,9 @@ preprocessor = MeshPreprocessor(originalMatrix, sigma, targetVolume)
 smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing() 
 
 # Manually set isovalue and ensure the matrix is contiguous in memory
-isovalue = 0.49
+if targetVolume:
+    iso = isovalue
+print("isovalue is:", iso)
 croppedMatrix = np.ascontiguousarray(croppedMatrix)
 
 # Print shape and bounds of the cropped matrix
@@ -18,7 +20,7 @@ print(croppedMatrix.shape)
 print(bounds)
 
 # Extract isosurface using IsosurfaceExtractor
-isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, ISO)
+isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
 faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
 
 # Initialize background matrix for voxelization
