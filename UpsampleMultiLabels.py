@@ -24,11 +24,11 @@ for i in range(len(separateMatrices)):
     preprocessor = MeshPreprocessor(singleLabelMatrix, sigma, targetVolume)
     smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing()
     croppedMatrix = np.ascontiguousarray(croppedMatrix)
-
+    
     if targetVolume:
         iso = isovalue
     print("isovalue for label",i, "is:", iso)
-    
+
     # Extract isosurface
     isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
@@ -38,5 +38,6 @@ for i in range(len(separateMatrices)):
     voxelizer = MeshVoxelizer(polyData, x, y, z, scale, background, bounds, label)
     background = voxelizer.voxeliseMesh()
 
+    
 # Resulting voxelized matrix
 newMatrix = background
