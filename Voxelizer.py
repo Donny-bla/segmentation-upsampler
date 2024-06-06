@@ -85,7 +85,7 @@ class MeshVoxelizer:
         distanceFilter.SetInput(scaledMesh)
 
         # Lower bound coordinates adjusted by scaling
-        lowerBound = np.uint8(self.lower / self.scale)
+        lowerBound = np.uint32(self.lower / self.scale)
 
         # Voxelize the mesh by evaluating the implicit function at each grid point
         for k in range(int(self.gx / self.scale)):
@@ -97,5 +97,5 @@ class MeshVoxelizer:
                     # Update background grid with label if point is inside the mesh
                     if distance < 0.0:
                         self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
-
+                        
         return self.background
