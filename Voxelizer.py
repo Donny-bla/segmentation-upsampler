@@ -27,7 +27,7 @@ class MeshVoxelizer:
         Array to hold the voxel values (initialized as None).
     """
 
-    def __init__(self, mesh, x, y, z, scale, background, bounds, label):
+    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, background, bounds, label):
         """
         Initialize the MeshVoxelizer.
 
@@ -59,6 +59,7 @@ class MeshVoxelizer:
         self.background = background
         self.label = label
         self.voxelValues = None
+        self.smoothedMatrix = smoothedMatrix
 
     def voxeliseMesh(self):
         """
@@ -91,11 +92,23 @@ class MeshVoxelizer:
         for k in range(int(self.gx / self.scale)):
             for j in range(int(self.gy / self.scale)):
                 for i in range(int(self.gz / self.scale)):
-                    point = np.array([i, j, k], dtype=float)
-                    distance = distanceFilter.EvaluateFunction(point)
-
-                    # Update background grid with label if point is inside the mesh
-                    if distance < 0.0:
+                    
+                    positionX = int((k + lowerBound[0]) * self.scale)
+                    positionY = int((j + lowerBound[1]) * self.scale)
+                    positionZ = int((i + lowerBound[2]) * self.scale)
+                    
+                    # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
+                    if self.smoothedMatrix[positionX, positionY, positionZ] == 1:
                         self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
+                    elif self.smoothedMatrix[positionX, positionY, positionZ] == 0:
+                        continue
+                        
+                    else:
+                        point = np.array([i, j, k], dtype=float)
+                        distance = distanceFilter.EvaluateFunction(point)
+    
+                        # Update background grid with label if point is inside the mesh
+                        if distance < 0.0:
+                            self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
                         
         return self.background
