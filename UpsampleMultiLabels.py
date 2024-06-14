@@ -32,10 +32,10 @@ for i in range(len(separateMatrices)):
     # Extract isosurface
     isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
-
+    
     # Voxelize the isosurface
     x, y, z = np.shape(croppedMatrix)
-    voxelizer = MeshVoxelizer(polyData, x, y, z, scale, background, bounds, label)
+    voxelizer = MeshVoxelizer(polyData, smoothedMatrix, x, y, z, scale, background, bounds, label)
     background = voxelizer.voxeliseMesh()
 
     
