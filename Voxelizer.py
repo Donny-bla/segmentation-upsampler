@@ -1,5 +1,6 @@
 import vtk
 import numpy as np
+import numba as nb
 
 class MeshVoxelizer:
     """
@@ -27,7 +28,7 @@ class MeshVoxelizer:
         Array to hold the voxel values (initialized as None).
     """
 
-    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, background, bounds, label):
+    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label):
         """
         Initialize the MeshVoxelizer.
 
@@ -55,6 +56,7 @@ class MeshVoxelizer:
         self.gy = y
         self.gz = z
         self.scale = scale
+        self.spacing = spacing
         self.lower = np.array(bounds[0])
         self.background = background
         self.label = label
@@ -70,8 +72,11 @@ class MeshVoxelizer:
         np.ndarray
             The updated background grid with the voxelized mesh.
         """
+        
         # Scale the mesh
         transform = vtk.vtkTransform()
+        # Consider nonisotropic properties
+        # dx = [self.scale[0]*self.spacing[0], self.scale[1]*self.spacing[1], self.scale[2]*self.spacing[2]]
         transform.Scale(1 / self.scale, 1 / self.scale, 1 / self.scale)
         
         transformFilter = vtk.vtkTransformPolyDataFilter()
@@ -86,29 +91,32 @@ class MeshVoxelizer:
         distanceFilter.SetInput(scaledMesh)
 
         # Lower bound coordinates adjusted by scaling
-        lowerBound = np.uint32(self.lower / self.scale)
+        lowerBound = np.uint32([self.lower[0] / self.scale, self.lower[1] / self.scale, self.lower[2] / self.scale])
+        self.background, points = pointWiseProcess(self.gx, self.gy, self.gz, self.scale, lowerBound, self.smoothedMatrix, self.label, self.background)
+        for p in points:
+            distance = distanceFilter.EvaluateFunction(p)
+        
+            # Update background grid with label if point is inside the mesh
+            if distance < 0.0:
+                self.background[p[2] + lowerBound[0], p[1] + lowerBound[1], p[0] + lowerBound[2]] = self.label
 
-        # Voxelize the mesh by evaluating the implicit function at each grid point
-        for k in range(int(self.gx / self.scale)):
-            for j in range(int(self.gy / self.scale)):
-                for i in range(int(self.gz / self.scale)):
-                    
-                    positionX = int((k + lowerBound[0]) * self.scale)
-                    positionY = int((j + lowerBound[1]) * self.scale)
-                    positionZ = int((i + lowerBound[2]) * self.scale)
-                    
-                    # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
-                    if self.smoothedMatrix[positionX, positionY, positionZ] == 1:
-                        self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
-                    elif self.smoothedMatrix[positionX, positionY, positionZ] == 0:
-                        continue
-                        
-                    else:
-                        point = np.array([i, j, k], dtype=float)
-                        distance = distanceFilter.EvaluateFunction(point)
-    
-                        # Update background grid with label if point is inside the mesh
-                        if distance < 0.0:
-                            self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
-                        
         return self.background
+
+@nb.njit
+def pointWiseProcess(gx, gy, gz, scale, lowerBound, smoothedMatrix, label, background):
+    ApplyDistanceFilter = []
+    # Voxelize the mesh by evaluating the implicit function at each grid point
+    for k in range(int(gx / scale)):
+        for j in range(int(gy / scale)):
+            for i in range(int(gz / scale)):
+                positionX = int((k + lowerBound[0]) * scale)
+                positionY = int((j + lowerBound[1]) * scale)
+                positionZ = int((i + lowerBound[2]) * scale)
+                if smoothedMatrix[positionX, positionY, positionZ] == 1:
+                    background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = label
+                elif smoothedMatrix[positionX, positionY, positionZ] == 0:
+                    continue
+                else:
+                    ApplyDistanceFilter.append([i,j,k])
+
+    return background, ApplyDistanceFilter
