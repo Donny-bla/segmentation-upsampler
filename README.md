@@ -13,7 +13,7 @@ To use lateral version of Python, do check whether its compatibility using this 
 
 
 Python package Installation:\
-pip install numpy scipy vtk
+pip install numpy scipy vtk numba
 
 MATLAB package:\
 k-wave (http://www.k-wave.org/)
