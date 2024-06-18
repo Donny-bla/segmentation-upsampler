@@ -28,7 +28,7 @@ class MeshVoxelizer:
         Array to hold the voxel values (initialized as None).
     """
 
-    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label):
+    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, background, bounds, label):
         """
         Initialize the MeshVoxelizer.
 
@@ -56,7 +56,6 @@ class MeshVoxelizer:
         self.gy = y
         self.gz = z
         self.scale = scale
-        self.spacing = spacing
         self.lower = np.array(bounds[0])
         self.background = background
         self.label = label
