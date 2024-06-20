@@ -19,7 +19,7 @@ class IsosurfaceExtractor:
         The vtkPolyData object representing the isosurface.
     """
 
-    def __init__(self, array, threshold, spacing):
+    def __init__(self, array, threshold):
         """
         Initialize the IsosurfaceExtractor.
 
@@ -32,7 +32,6 @@ class IsosurfaceExtractor:
         """
         self.array = array
         self.threshold = threshold
-        self.spacing = spacing
         self.faces = None
         self.nodes = None
         self.polyData = None
@@ -54,7 +53,7 @@ class IsosurfaceExtractor:
         data = vtk.vtkImageData()
         x, y, z = self.array.shape
         data.SetDimensions(z, y, x)
-        data.SetSpacing(self.spacing[0], self.spacing[1], self.spacing[2])
+        data.SetSpacing(1, 1, 1)
         data.SetOrigin(0, 0, 0)
 
         vtkDataArray = vtk.vtkFloatArray()
