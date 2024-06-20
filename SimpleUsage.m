@@ -1,7 +1,7 @@
 %% Generate and process 3D shapes with different configurations and evaluate the results.
 % This script creates 3D shapes in a low-resolution grid, upsamples them, 
 % creates reference data, visualizes the results, and evaluates the 
-% differences using various metrics.
+% differences using various metrics.            
 
 %% Important Variables
 % N: Grid size for the low-resolution grid
@@ -14,7 +14,7 @@
 % radiusRef: Radius for the reference shape
 N = 60;                       
 radius = round(N/3);          
-dx = 0.7;                     
+dx = 0.5;                     
 sigma = 0.6;                  
 isovalue = 0.4;               
 Volume = 0;                   
@@ -35,7 +35,9 @@ newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
                       sigma = sigma, ...
                       targetVolume = Volume, ...
                       scale = dx, ...
-                      iso = isovalue);
+                      spacing = [1, 1, 1], ...
+                      iso = isovalue, ...
+                      NB = true);
 
 %% Create reference data
 % Generate a high-resolution reference matrix with the same shape parameters.
@@ -63,7 +65,7 @@ if cropImage
     % Plot the cropped images
     figure;
     subplot(2, 3, 1);
-    imagesc(originalMatrix(:, :, end/2));
+    imagesc(originalMatrix(:, :, round(end/2)));
     axis image; title("Input Image"); set(gca, "Fontsize", 20);
     
     subplot(2, 3, 2);
