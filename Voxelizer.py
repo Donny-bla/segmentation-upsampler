@@ -27,7 +27,7 @@ class MeshVoxelizer:
         Array to hold the voxel values (initialized as None).
     """
 
-    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, background, bounds, label):
+    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label):
         """
         Initialize the MeshVoxelizer.
 
@@ -55,10 +55,10 @@ class MeshVoxelizer:
         self.gy = y
         self.gz = z
         self.scale = scale
-        self.lower = np.array(bounds[0])
+        self.spacing = spacing
+        self.lower = bounds[0]
         self.background = background
         self.label = label
-        self.voxelValues = None
         self.smoothedMatrix = smoothedMatrix
 
     def voxeliseMesh(self):
@@ -70,45 +70,29 @@ class MeshVoxelizer:
         np.ndarray
             The updated background grid with the voxelized mesh.
         """
-        # Scale the mesh
-        transform = vtk.vtkTransform()
-        transform.Scale(1 / self.scale, 1 / self.scale, 1 / self.scale)
-        
-        transformFilter = vtk.vtkTransformPolyDataFilter()
-        transformFilter.SetInputData(self.mesh)
-        transformFilter.SetTransform(transform)
-        transformFilter.Update()
-
-        scaledMesh = transformFilter.GetOutput()
 
         # Create an implicit function of the scaled mesh
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
-        distanceFilter.SetInput(scaledMesh)
+        distanceFilter.SetInput(self.mesh)
 
-        # Lower bound coordinates adjusted by scaling
-        lowerBound = np.uint32(self.lower / self.scale)
-
+        dx = [self.scale[0] * self.spacing[0], self.scale[1] * self.spacing[1], self.scale[2] * self.spacing[2]]
         # Voxelize the mesh by evaluating the implicit function at each grid point
-        for k in range(int(self.gx / self.scale)):
-            for j in range(int(self.gy / self.scale)):
-                for i in range(int(self.gz / self.scale)):
-                    
-                    positionX = int((k + lowerBound[0]) * self.scale)
-                    positionY = int((j + lowerBound[1]) * self.scale)
-                    positionZ = int((i + lowerBound[2]) * self.scale)
-                    
+        for k in np.arange(self.lower[0], self.gx + self.lower[0], dx[0]):
+            for j in np.arange(self.lower[1], self.gy + self.lower[1], dx[1]):
+                for i in np.arange(self.lower[2], self.gz + self.lower[2], dx[2]):
+
                     # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
-                    if self.smoothedMatrix[positionX, positionY, positionZ] == 1:
-                        self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
-                    elif self.smoothedMatrix[positionX, positionY, positionZ] == 0:
-                        continue
-                        
+                    if self.smoothedMatrix[int(k), int(j), int(i)] == 1:
+                        self.background[round(k/dx[0]), round(j/dx[1]), round(i/dx[2])] = self.label
+                    elif self.smoothedMatrix[int(k), int(j), int(i)] == 0:
+                        continue 
+
                     else:
-                        point = np.array([i, j, k], dtype=float)
+                        point = np.array([i - self.lower[2], j - self.lower[1], k - self.lower[0]], dtype=float)
                         distance = distanceFilter.EvaluateFunction(point)
     
                         # Update background grid with label if point is inside the mesh
                         if distance < 0.0:
-                            self.background[k + lowerBound[0], j + lowerBound[1], i + lowerBound[2]] = self.label
+                            self.background[round(k/dx[0]), round(j/dx[1]), round(i/dx[2])] = self.label
                         
         return self.background
