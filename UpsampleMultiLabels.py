@@ -9,14 +9,14 @@ import numpy as np
 
 # Initialize background matrix for voxelization
 gx, gy, gz = np.shape(multiLabelMatrix)
-# background = np.zeros((int(gx / (scale[0] * spacing[0])), int(gy / (scale[1] * spacing[1])), int(gz / (scale[2] * spacing[2]))), dtype=np.uint8)
-background = np.zeros((int(gx / scale), int(gy / scale), int(gz / scale)), dtype=np.uint8)
+background = np.zeros((int(gx / (scale[0] * spacing[0])), int(gy / (scale[1] * spacing[1])), int(gz / (scale[2] * spacing[2]))), dtype=np.uint8)
 
 # Initialize LabelSeparation instance and separate labels
 labelSeparationInstance = LabelSeparation(multiLabelMatrix)
 labelSeparationInstance.separateLabels()
 separateMatrices, labelVolume, labels = labelSeparationInstance.getResults()
-#print(len(separateMatrices))
+# print(len(separateMatrices))
+
 # Loop through each label, preprocess, extract isosurface, and voxelize
 for i in range(len(separateMatrices)):
     singleLabelMatrix = separateMatrices[i]
@@ -32,18 +32,17 @@ for i in range(len(separateMatrices)):
     #print("isovalue for label",i, "is:", iso)
 
     # Extract isosurface
-    isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso, spacing)
+    isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
     #print(faces.shape, nodes.shape)
     
-
     x, y, z = np.shape(croppedMatrix)
     # Voxelize the isosurface
     if NB:
-        voxelizer = MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, z, scale, background, bounds, label)
+        voxelizer = MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label)
         background = voxelizer.voxeliseMesh()
     else:
-        voxelizer = MeshVoxelizer(polyData, smoothedMatrix, x, y, z, scale, background, bounds, label)
+        voxelizer = MeshVoxelizer(polyData, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label)
         background = voxelizer.voxeliseMesh()
     
 # Resulting voxelized matrix
