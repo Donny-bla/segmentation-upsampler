@@ -14,13 +14,14 @@
 % radiusRef: Radius for the reference shape
 N = 60;                       
 radius = round(N/3);          
-dx = 0.5;                     
+dx = [0.8, 0.8, 0.8];  
+spacing = [0.625, 0.625, 1.25];
 sigma = 0.6;                  
 isovalue = 0.4;               
-Volume = 0;                   
-Nref = floor(N / dx);         
-fac = 1 / dx;                 
-radiusRef = radius / dx;      
+Volume = 0;        
+Nref = floor(N / (dx(1)*spacing(1)));         
+fac = 1 / (dx(1)*spacing(1));                 
+radiusRef = radius / (dx(1)*spacing(1));      
 
 %% Create some data
 % Generate an initial 3D shape matrix with multiple labels.
@@ -35,13 +36,13 @@ newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
                       sigma = sigma, ...
                       targetVolume = Volume, ...
                       scale = dx, ...
-                      spacing = [1, 1, 1], ...
+                      spacing = spacing, ...
                       iso = isovalue, ...
                       NB = true);
 
 %% Create reference data
 % Generate a high-resolution reference matrix with the same shape parameters.
-referenceMatrix = makeShapes("MultiLabel", [radiusRef], [Nref, Nref, floor(80/dx)], [0, 0, 0]);
+referenceMatrix = makeShapes("MultiLabel", [radiusRef], [Nref, Nref, floor(80/0.5)], [0, 0, 0]);
 
 %% Plot results
 % Convert the new matrix to double precision for processing.
