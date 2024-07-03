@@ -76,7 +76,7 @@ class MeshVoxelizerNumba:
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
         distanceFilter.SetInput(self.mesh)
 
-        dx = [self.scale[0] * self.spacing[0], self.scale[1] * self.spacing[1], self.scale[2] * self.spacing[2]]
+        dx = [self.scale[0] / self.spacing[0], self.scale[1] / self.spacing[1], self.scale[2] / self.spacing[2]]
 
         self.background, points = pointWiseProcess(self.gx, self.gy, self.gz, dx, self.lower, self.smoothedMatrix, self.label, self.background)
         for p in points:
