@@ -75,7 +75,7 @@ class MeshVoxelizer:
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
         distanceFilter.SetInput(self.mesh)
 
-        dx = [self.scale[0] * self.spacing[0], self.scale[1] * self.spacing[1], self.scale[2] * self.spacing[2]]
+        dx = [self.scale[0] / self.spacing[0], self.scale[1] / self.spacing[1], self.scale[2] / self.spacing[2]]
         # Voxelize the mesh by evaluating the implicit function at each grid point
         for k in np.arange(self.lower[0], self.gx + self.lower[0], dx[0]):
             for j in np.arange(self.lower[1], self.gy + self.lower[1], dx[1]):
