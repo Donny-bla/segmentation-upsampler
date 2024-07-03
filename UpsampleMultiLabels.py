@@ -9,7 +9,7 @@ import numpy as np
 
 # Initialize background matrix for voxelization
 gx, gy, gz = np.shape(multiLabelMatrix)
-background = np.zeros((int(gx / (scale[0] * spacing[0])), int(gy / (scale[1] * spacing[1])), int(gz / (scale[2] * spacing[2]))), dtype=np.uint8)
+background = np.zeros((int(gx / (scale[0] / spacing[0])), int(gy / (scale[1] / spacing[1])), int(gz / (scale[2] / spacing[2]))), dtype=np.uint8)
 
 # Initialize LabelSeparation instance and separate labels
 labelSeparationInstance = LabelSeparation(multiLabelMatrix)
