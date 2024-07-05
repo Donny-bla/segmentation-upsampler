@@ -1,6 +1,6 @@
 
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 'Resampling segmented medical image data for treatment planning in ultrasound therapy'
 tags:
   - Python
 
@@ -20,12 +20,8 @@ authors:
     surname: Beethoven
     affiliation: 3
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University, USA
+ - name: -
    index: 1
- - name: Institution Name, Country
-   index: 2
- - name: Independent Researcher, Country
-   index: 3
 date: 13 August 2017
 bibliography: paper.bib
 
