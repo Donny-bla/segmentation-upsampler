@@ -39,7 +39,7 @@ The challenge, therefore, lies in developing an upsampling method that can incre
 ## Overview
 This chapter introduces an algorithm that utilizes a mesh-based method for the process of upsampling. The workflow of the algorithm is depicted in the Fig 1.
 
-![Workflow diagram]([figures/workflow.jpg](https://github.com/ucl-bug/segmentation-upsampler/blob/main/paper/figures/workflow.jpg))
+![Workflow diagram](figures/workflow.jpg)
 *Figure 1: Workflow diagram*
 
 A single labelled image can be equated to a binary image. Initially, this image undergoes a smoothing process in a grid-based manner. The smoothing will convert a binary image into a double/single precision image. The purpose of the smoothing process is to add extra information, based on the assumption that objects are generally smooth. A smoother surface tends to be a better assumption of the natural shape of the object. From the smoothed image, an isosurface is extracted indicating points within a spatial volume where the values are constant.
