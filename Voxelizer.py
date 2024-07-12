@@ -80,11 +80,14 @@ class MeshVoxelizer:
         for k in np.arange(self.lower[0], self.gx + self.lower[0], dx[0]):
             for j in np.arange(self.lower[1], self.gy + self.lower[1], dx[1]):
                 for i in np.arange(self.lower[2], self.gz + self.lower[2], dx[2]):
-
-                    # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
-                    if self.smoothedMatrix[int(k), int(j), int(i)] == 1:
-                        self.background[round(k/dx[0]), round(j/dx[1]), round(i/dx[2])] = self.label
-                    elif self.smoothedMatrix[int(k), int(j), int(i)] == 0:
+                    px = round((k - self.lower[0]) / dx[0]) + int(self.lower[0] / dx[0])
+                    py = round((j - self.lower[1]) / dx[1]) + int(self.lower[1] / dx[1])
+                    pz = round((i - self.lower[2]) / dx[2]) + int(self.lower[2] / dx[2])
+    
+                    #A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
+                    if smoothedMatrix[int(k), int(j), int(i)] == 1:
+                        background[px,py,pz] = label
+                    elif smoothedMatrix[int(k), int(j), int(i)] == 0:
                         continue 
 
                     else:
@@ -93,6 +96,6 @@ class MeshVoxelizer:
     
                         # Update background grid with label if point is inside the mesh
                         if distance < 0.0:
-                            self.background[round(k/dx[0]), round(j/dx[1]), round(i/dx[2])] = self.label
+                            self.background[px,py,pz] = self.label
                         
         return self.background
