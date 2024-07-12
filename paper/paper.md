@@ -62,19 +62,7 @@ While the *OriginalImage* and *dx* are required inputs from the user, the sigma 
 # Application
 ## Test Objects
 
-Our test objects include simple shapes such as a sphere, a bowl, a cylinder, and a sphere with a hole shown in Figures \ref{fig:sphere_hole}, \ref{fig:cylinder}, \ref{fig:bowl}, and \ref{fig:sphere}. We also have a complex object used in many tests, as shown in Figure \ref{fig:complex}. This complex object is used in all subsequent numerical experiments unless otherwise specified.
-
-![Testing object: sphere with hole](figures/spherehole_testobject.eps)
-*Figure 2: Testing object: sphere with hole*\label{fig:sphere_hole}
-
-![Testing object: cylinder](figures/cylinder_testobject.eps)
-*Figure 3: Testing object: cylinder*\label{fig:cylinder}
-
-![Testing object: bowl](figures/bowl_testobject.eps)
-*Figure 4: Testing object: bowl*\label{fig:bowl}
-
-![Testing object: sphere](figures/sphere_testobject.eps)
-*Figure 5: Testing object: sphere*\label{fig:sphere}
+Our test objects include simple shapes such as a sphere, a bowl, a cylinder, and a sphere with a hole. We also have a complex object used in many tests, as shown in Figure \ref{fig:complex}. This complex object is used in all subsequent numerical experiments unless otherwise specified.
 
 ![‘Complex’ Test Object: three-dimensional isometric projection](figures/complex_object.eps)
 *Figure 6: 'Complex' Test Object: three-dimensional isometric projection*\label{fig:complex}
