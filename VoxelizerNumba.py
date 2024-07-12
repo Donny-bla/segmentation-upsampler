@@ -77,14 +77,15 @@ class MeshVoxelizerNumba:
         distanceFilter.SetInput(self.mesh)
 
         dx = [self.scale[0] / self.spacing[0], self.scale[1] / self.spacing[1], self.scale[2] / self.spacing[2]]
-
         self.background, points = pointWiseProcess(self.gx, self.gy, self.gz, dx, self.lower, self.smoothedMatrix, self.label, self.background)
         for p in points:
             distance = distanceFilter.EvaluateFunction(p)
-        
             # Update background grid with label if point is inside the mesh
-            if distance < 0.0:
-                self.background[round((p[2]+self.lower[0])/dx[0]), round((p[1]+self.lower[1])/dx[1]), round((p[0]+self.lower[2])/dx[2])] = self.label
+            if distance < 0:
+                px = round(p[2]/dx[0]) + int(self.lower[0] / dx[0])
+                py = round(p[1]/dx[1]) + int(self.lower[1] / dx[1])
+                pz = round(p[0]/dx[2]) + int(self.lower[2] / dx[2])
+                self.background[px,py,pz] = self.label
 
         return self.background
 
@@ -96,10 +97,13 @@ def pointWiseProcess(gx, gy, gz, dx, lower, smoothedMatrix, label, background):
     for k in np.arange(lower[0], gx + lower[0], dx[0]):
         for j in np.arange(lower[1], gy + lower[1], dx[1]):
             for i in np.arange(lower[2], gz + lower[2], dx[2]):
+                px = round((k - lower[0]) / dx[0]) + int(lower[0] / dx[0])
+                py = round((j - lower[1]) / dx[1]) + int(lower[1] / dx[1])
+                pz = round((i - lower[2]) / dx[2]) + int(lower[2] / dx[2])
 
-                # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
+                #A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
                 if smoothedMatrix[int(k), int(j), int(i)] == 1:
-                    background[round(k/dx[0]), round(j/dx[1]), round(i/dx[2])] = label
+                    background[px,py,pz] = label
                 elif smoothedMatrix[int(k), int(j), int(i)] == 0:
                     continue 
 
