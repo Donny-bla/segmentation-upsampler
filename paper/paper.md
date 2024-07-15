@@ -99,7 +99,8 @@ Figure \ref{fig:upsample_methods} presents a comparison of the results obtained 
 Interestingly, all three methods show a trend of decreasing error percentage as the scale of upsampling increases, especially when the scale reaches 0.5. A general trend shown in this comparison could either be an improvement in performance or an effect caused by the method of error normalization. Since the volume normalizes the difference, the volume may increase faster than the number of differences. This observation underscores the importance of carefully considering the impact of normalization methods on the interpretation of results.
 
 ## Demonstration
-
+A demonstration of a medical image with \(\sigma = 0.7, isovalue = 0.4\). This demonstration upsamples at scale of 0.8 and spacing at 0.2910,0.2910,1.2500.
+![whole spine medical image demonstration, spacing undefined input vs spacing defined output](figure/medical_example.svg)
 # Citations
 
 Citations to entries in paper.bib should be in
