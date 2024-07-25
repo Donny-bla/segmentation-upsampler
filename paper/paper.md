@@ -1,23 +1,30 @@
-
 ---
 title: 'Resampling segmented medical image data for treatment planning in ultrasound therapy'
 tags:
   - Python
 
 authors:
-  - name: xxx
+  - name: Donny Liangpu Liu
+    orcid: 0000-0000-0000-0000
+    equal-contrib: true
     affiliation: 1
+  - name: Rui Xu
+    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
+    affiliation: 1
+  - name: Bradley Treeby
+    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
+    affiliation: 1
+    
 affiliations:
- - name: -
+ - name:  Department of Medical Physics and Biomedical Engineering, University College London, UK 
    index: 1
-date: 13 July 2024
+date: 13 August 2017
 bibliography: paper.bib
-<!--
+
 # Optional fields if submitting to a AAS journal too, see this blog post:
 # https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
 aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal. 
--->
+aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
@@ -25,15 +32,15 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Statement of need
 
-Ultrasound therapy has seen remarkable progress recently, with its applications extending from targeted cancer treatments to non-invasive brain function modulation [^1]. The use of ultrasound therapy often requires simulation to enhance its effectiveness in different clinical scenarios [^2][^1].
+Ultrasound therapy has seen remarkable progress recently, with its applications extending from targeted cancer treatments to non-invasive brain function modulation [^1] [^2]. Such achievement is driven in part by the adoption of advanced simulation methods. These methods have enabled the focusing of ultrasound through complex media, such as the skull [cite], using techniques like phase correction [cite] and electronic focusing [cite], expand the scenario of application of ultrasound therapy.
 
-Ultrasound simulation can provide insights into the diagnosis, treatment, and monitoring of various health conditions. For instance, ultrasound can stimulate neuronal behaviour. By conducting simulations, we can monitor the variation of pressure and heat during medical treatment [^3][^4].
+Ultrasound simulation can provide insights into the diagnosis [cite], treatment [cite], and monitoring of various health conditions [cite]. Moreover, ultrasound stimulation can be a useful tool in personalized medicine. By conducting subject-specific simulations, we can monitor the variation of pressure and heat during medical treatment for a specific patient[^3][^4].
 
-One of the primary limitations in this field is the resolution of medical images. Medical images, such as those obtained through Magnetic Resonance Imaging (MRI) or Computed Tomography (CT) scans, can provide sufficient information for radiologists' diagnosis. However, the resolution of these segments is often insufficient for the detailed simulations required in ultrasound studies. In practice, an MR Image is typically 1 mm isotropic resolution, while a CT is typically 0.5 mm in plane and 1-2 mm between planes. Ultrasound simulations need 6-12 grid points per wavelength, which at 500 kHz in water, corresponds to a required resolution of 0.25 to 0.5 mm [^5]. During ultrasound simulation, these images are typically segmented into labels, each representing a different type of tissue or material by segmentation AI or other tools. The resolution of these segmented images tends to limit simulation accuracy [^5].
+One of the primary limitations in patient-specific ultrasound simulation is the resolution of medical images. Medical images, such as those obtained through Magnetic Resonance Imaging (MRI) or Computed Tomography (CT) scans, can provide sufficient information for radiologists' diagnosis. However, the resolution of these images are often insufficient for accurate ultrasound simulation. In practice, an MR Image typically has a 1 mm isotropic resolution, while CT resolution is typically 0.5 mm in plane and 1-2 mm between planes. Ultrasound simulations need 6-12 grid points per wavelength, which at 500 kHz and in water or most soft tissues, corresponds to an isotropic resolution of 0.25 to 0.5 mm [^5]. During ultrasound simulation, these images are typically segmented into labels, each representing a different type of tissue or material by segmentation. Image segmentation can be completed manually, semi-automatically [cite ITK-SNAP], and now with AI models [cite]. The resulting label-map is then used to define the acoustic (and thermal) properties throughout the simulation grid. The resolution of these segmented images and the accuracy of the segmentation tends to limit simulation accuracy [^5].
 
-To bridge this gap, an 'upsampling' process is required. This process involves increasing the resolution of the segmented images to match that required for simulation. However, naive, interpolation-based upsampling methods, such as nearest neighbour or linear interpolation, often lead to 'staircasing' effects [^5]. This is where the boundaries between labels become artificially jagged due to the increased resolution. Those images cannot represent any biological feature.
+An 'upsampling' process is required in order to bridge the gap between image resolution and the required simulation resolution. Naive interpolation-based upsampling methods, such as nearest neighbour or linear interpolation, may lead to 'staircasing' effects [^5]. Poor image segmentation may also lead to a staircased simulation domain and incorrect simulation results.
 
-The challenge, therefore, lies in developing an upsampling method that can increase the resolution of segmented medical images smoothly, without introducing staircasing effects or other artifacts.
+The challenge, therefore, lies in developing an upsampling method that can increase the resolution of segmented medical images smoothly, without introducing staircasing effects or other artifacts. The upsampling method should also be able to at least partially smooth staircasing artifacts introduced by poor image segmentation.
 
 # Algorithm design
 ## Overview
@@ -42,20 +49,22 @@ This section introduces an algorithm that utilizes a mesh-based method for the p
 ![Workflow diagram](figure/workflow.jpg)
 *Figure 1: Workflow diagram*
 
-A single labelled image can be equated to a binary image. Initially, this image undergoes a smoothing process in a grid-based manner. The smoothing will convert a binary image into a double/single precision image. The purpose of the smoothing process is to add extra information, based on the assumption that objects are generally smooth. A smoother surface tends to be a better assumption of the natural shape of the object. From the smoothed image, an isosurface is extracted indicating points within a spatial volume where the values are constant.
+An image with a single label can be equated to a binary image. To begin, our algorithm converts the binary image to a floaing point array, then smooths the image using a grid-based method. The purpose of the smoothing process is to add extra information, based on the assumption that a smoother surface tends to be a better assumption of the natural shape of a biological object. Next, an isosurface is extracted from the smoothed image, indicating points within a spatial volume where the values are constant.
 
-Subsequently, the algorithm generates a triangulated surface mesh and rasterizes it. The surface mesh serves as the original shape in a continuous grid space. The rasterization process determines whether points in a high-resolution grid fall within the surface mesh.
+Subsequently, the algorithm generates a triangulated free-space surface mesh grid-based isosurface. A hole-filling function will process the surface to remove redundant data. Finally, the free-space mesh is rasterized in a new grid with the required discretization for accurate ultrasound simulation.
+
 ## Input & Output
 The final algorithm accepts and returns the following variables:
 
 **Input:**
 OriginalImage: low resolution input
-dx: scale of upsampling
-sigma: sigma for Gaussian smoother
-I: isovalue for isosurface extraction
+spacing: spacing of the original image
+dx: scale of upsampling (3*1 array for medical image, for instace [0.5, 0.5, 1] will upsample the image by 2 times in x and y axis and no upsampling in z axis.)
+sigma: sigma for Gaussian smoother (scalar float, recommand range: 0 - 1)
+I: isovalue for isosurface extraction (scalar float, recommand range: 0.4-0.5)
 
 **Output:**
-NewImage: high resolution output
+NewImage: high resolution output with defined spacing
 
 While the *OriginalImage* and *dx* are required inputs from the user, the sigma and isovalue parameters necessitate further investigation to ascertain the optimal settings. This will be discussed in the subsequent section. It is important to note that the choice of these parameters can significantly impact the quality of the upsampled image.
 
