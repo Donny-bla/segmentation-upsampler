@@ -44,9 +44,9 @@ The challenge, therefore, lies in developing an upsampling method that can incre
 
 # Algorithm design
 ## Overview
-This section introduces an algorithm that utilizes a mesh-based method for the process of upsampling. The workflow of the algorithm is depicted in the [\autoref{fig:workflow}].
+This section introduces an algorithm that utilizes a mesh-based method for the process of upsampling. The workflow of the algorithm is depicted in the [Figure 1](#fig:figure1).
 
-![Workflow diagram \label{fig:workflow}](figure/workflow.jpg)
+![Workflow diagram](figure/workflow.jpg)
 
 An image with a single label can be equated to a binary image. To begin, our algorithm converts the binary image to a floaing point array, then smooths the image using a grid-based method. The purpose of the smoothing process is to add extra information, based on the assumption that a smoother surface tends to be a better assumption of the natural shape of a biological object. Next, an isosurface is extracted from the smoothed image, indicating points within a spatial volume where the values are constant.
 
@@ -56,6 +56,7 @@ Subsequently, the algorithm generates a triangulated free-space surface mesh gri
 The final algorithm accepts and returns the following variables:
 
 **Input:**
+
 OriginalImage: low resolution input
 
 spacing: spacing of the original image
@@ -67,6 +68,7 @@ $\sigma$: sigma for Gaussian smoother (scalar float, recommand range: 0 - 1)
 $I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.5)
 
 **Output:**
+
 NewImage: high resolution output with defined spacing
 
 While the *OriginalImage* and *dx* are required inputs from the user, the sigma and isovalue parameters may necessitate further investigation to ascertain the optimal settings. It is important to note that the choice of these parameters can significantly impact the quality of the upsampled image and the optimal parameters depend on the geometry of the segmented object.
