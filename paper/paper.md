@@ -2,6 +2,8 @@
 title: 'Resampling segmented medical image data for treatment planning in ultrasound therapy'
 tags:
   - Python
+  - Image upsampling
+  - Ultrasound simulation
 
 authors:
   - name: Donny Liangpu Liu
@@ -115,12 +117,10 @@ Interestingly, all three methods show a trend of decreasing error percentage as 
 ## Demonstration
 A demonstration of a spine with input parameter $\sigma = 0.7, isovalue = 0.4\$, input data obtained from[^14]. This demonstration upsamples at scale of 0.8 and spacing at 0.2910,0.2910,1.2500.
 ![whole spine medical image demonstration, spacing undefined input vs spacing defined output](figure/medical_example.svg)
-# Citations
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+something
 
 # References
 [^1]: Bachu, E. (2021). High-Intensity Focused Ultrasound in Cancer Treatment.
