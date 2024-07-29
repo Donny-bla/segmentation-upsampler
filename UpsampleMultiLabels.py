@@ -4,12 +4,15 @@ from Extractor import IsosurfaceExtractor
 from Voxelizer import MeshVoxelizer
 from VoxelizerNumba import MeshVoxelizerNumba
 from LabelSeparater import LabelSeparation
+from FillGaps import FillGaps
 from scipy.ndimage import gaussian_filter
 import numpy as np
 
 # Initialize background matrix for voxelization
 gx, gy, gz = np.shape(multiLabelMatrix)
-background = np.zeros((int(gx / (scale[0] / spacing[0])), int(gy / (scale[1] / spacing[1])), int(gz / (scale[2] / spacing[2]))), dtype=np.uint8)
+dx = [scale[0] / spacing[0], scale[1] / spacing[1], scale[2] / spacing[2]]
+background = np.zeros((int(gx / dx[0]), int(gy / dx[1]), int(gz / dx[2])), dtype=np.uint8)
+smoothedList = []
 
 # Initialize LabelSeparation instance and separate labels
 labelSeparationInstance = LabelSeparation(multiLabelMatrix)
@@ -25,6 +28,7 @@ for i in range(len(separateMatrices)):
     # Preprocess the individual label matrix
     preprocessor = MeshPreprocessor(singleLabelMatrix, sigma, targetVolume)
     smoothedMatrix, isovalue, croppedMatrix, bounds = preprocessor.meshPreprocessing()
+    smoothedList.append(smoothedMatrix)
     croppedMatrix = np.ascontiguousarray(croppedMatrix)
 
     if targetVolume:
@@ -36,7 +40,8 @@ for i in range(len(separateMatrices)):
     faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
 
     x, y, z = np.shape(croppedMatrix)
-    print(bounds, x, y, z)
+    #print(bounds, x, y, z)
+
     # Voxelize the isosurface
     if NB:
         voxelizer = MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label)
@@ -48,3 +53,7 @@ for i in range(len(separateMatrices)):
 
 # Resulting voxelized matrix
 newMatrix = background
+
+if fillGaps:
+    GapFiller = FillGaps(newMatrix, smoothedList, dx, isovalue)
+    newMatrix = GapFiller.fillZeros()

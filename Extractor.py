@@ -71,7 +71,7 @@ class IsosurfaceExtractor:
         # Fill holes in the mesh
         fill = vtk.vtkFillHolesFilter()
         fill.SetInputConnection(surface.GetOutputPort())
-        fill.SetHoleSize(0.1)
+        fill.SetHoleSize(5)
         fill.Update()
     
         # Remove any duplicate points
