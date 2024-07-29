@@ -31,9 +31,9 @@ aas-journal: Astrophysical Journal <- The name of the AAS journal.
 
 # Summary
 
-Recent advances in ultrasound therapy are supported by improved simulation methods. These methods enhance diagnostic, therapeutic, and monitoring capabilities. A significant challenge in ultrasound simulations is the insufficient resolution of medical images like MRI and CT scans. Effective ultrasound simulation requires higher resolution, typically achieved through upsampling, but traditional methods can introduce artifacts and inaccuracies.
+Recent advances in ultrasound therapy are supported by improved simulation methods. These methods enhance diagnostic, therapeutic, and monitoring capabilities. A significant challenge in ultrasound simulations is the insufficient resolution of medical images like MRI and CT scans. Effective ultrasound simulation requires higher resolution, typically achieved through upsampling, but traditional methods can introduce artifacts and inaccuracies, especially staircasing effect.
 
-To address this, a new mesh-based algorithm is proposed for upsampling segmented medical images. The algorithm smooths the image, extracts an isosurface, generates a triangulated mesh, and rasterizes it to the required resolution. This method reduces artifacts and inaccuracies, mainly staircasing effect, compared to traditional upsampling methods.
+To address this, a new mesh-based algorithm is proposed for upsampling segmented medical images. The algorithm smooths the image, extracts an isosurface, generates a triangulated mesh, and rasterizes it to the required resolution. This method reduces staircasing effect and other artifacts, compared to traditional upsampling methods.
 
 The algorithm's effectiveness is demonstrated using a complex test object and medical images of a spine and liver, showing improved accuracy and smoothness. This approach holds promise for enhancing the precision of ultrasound simulations in personalized medicine.
 
