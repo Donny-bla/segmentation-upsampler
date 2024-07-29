@@ -14,8 +14,8 @@
 % radiusRef: Radius for the reference shape
 N = 60;                       
 radius = round(N/3);          
-dx = [0.8, 0.8, 0.8];  
-spacing = [0.625, 0.625, 1.25];
+dx = [0.5, 0.5, 0.5];  
+spacing = [1, 1, 1]; % mm
 sigma = 0.6;                  
 isovalue = 0.4;               
 Volume = 0;        
@@ -38,6 +38,7 @@ newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
                       scale = dx, ...
                       spacing = spacing, ...
                       iso = isovalue, ...
+                      fillGaps = false, ...
                       NB = true);
 
 %% Create reference data
@@ -48,73 +49,32 @@ referenceMatrix = makeShapes("MultiLabel", [radiusRef], [Nref, Nref, floor(80/0.
 % Convert the new matrix to double precision for processing.
 newMatrix = double(newMatrix);
 
-% Flag to control image cropping
-cropImage = true;
+% Plot the entire images without cropping
+figure;
+subplot(2, 3, 1);
+imagesc(originalMatrix(:, :, end/2));
+axis image; title('Input Image'); set(gca, "Fontsize", 20);
 
-if cropImage
-    % Create a mask for cropping based on a smaller ball
-    fullMatrix = makeShapes("Ball", [radiusRef - 2], [Nref, Nref, floor(80/dx)], [0, 0, 0]);
-    
-    % Find indices where the mask is 1
-    [rowIndices, colIndices, depthIndices] = ind2sub(size(fullMatrix), find(fullMatrix == 1));
-    
-    % Calculate the minimum and maximum indices for cropping
-    minRow = min(rowIndices); maxRow = max(rowIndices);
-    minCol = min(colIndices); maxCol = max(colIndices);
-    minDepth = min(depthIndices); maxDepth = max(depthIndices);
-    
-    % Plot the cropped images
-    figure;
-    subplot(2, 3, 1);
-    imagesc(originalMatrix(:, :, round(end/2)));
-    axis image; title("Input Image"); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 2);
-    imagesc(newMatrix(minRow:maxRow, minCol:maxCol, round((minDepth + maxDepth)/2)));
-    axis image; title("Output Image"); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 3);
-    imagesc(referenceMatrix(minRow:maxRow, minCol:maxCol, round((minDepth + maxDepth)/2)));
-    axis image; title("Reference Image"); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 4);
-    imagesc(newMatrix(minRow:maxRow, minCol:maxCol, round((minDepth + maxDepth)/2)) - referenceMatrix(minRow:maxRow, minCol:maxCol, round((minDepth + maxDepth)/2)));
-    axis image; title('Difference Image - Z-axis'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 5);
-    imagesc(squeeze(newMatrix(round((minRow + maxRow)/2), minCol:maxCol, minDepth:maxDepth) - referenceMatrix(round((minRow + maxRow)/2), minCol:maxCol, minDepth:maxDepth)));
-    axis image; title('Difference Image - X-axis'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 6);
-    imagesc(squeeze(newMatrix(minRow:maxRow, round((minCol + maxCol)/2), minDepth:maxDepth) - referenceMatrix(minRow:maxRow, round((minCol + maxCol)/2), minDepth:maxDepth)));
-    axis image; title('Difference Image - Y-axis'); set(gca, "Fontsize", 20);
-else
-    % Plot the entire images without cropping
-    figure;
-    subplot(2, 3, 1);
-    imagesc(originalMatrix(:, :, end/2));
-    axis image; title('Input Image'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 2);
-    imagesc(newMatrix(:, :, end/2));
-    axis image; title('Output Image'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 3);
-    imagesc(referenceMatrix(:, :, end/2));
-    axis image; title('Reference Image'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 4);
-    imagesc(newMatrix(:, :, end/2) - referenceMatrix(:, :, end/2));
-    axis image; title('Difference Image - Z-axis'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 5);
-    imagesc(squeeze(newMatrix(end/2, :, :) - referenceMatrix(end/2, :, :)));
-    axis image; title('Difference Image - X-axis'); set(gca, "Fontsize", 20);
-    
-    subplot(2, 3, 6);
-    imagesc(squeeze(newMatrix(:, end/2, :) - referenceMatrix(:, end/2, :)));
-    axis image; title('Difference Image - Y-axis'); set(gca, "Fontsize", 20);
-end
+subplot(2, 3, 2);
+imagesc(newMatrix(:, :, end/2));
+axis image; title('Output Image'); set(gca, "Fontsize", 20);
+
+subplot(2, 3, 3);
+imagesc(referenceMatrix(:, :, end/2));
+axis image; title('Reference Image'); set(gca, "Fontsize", 20);
+
+subplot(2, 3, 4);
+imagesc(newMatrix(:, :, end/2) - referenceMatrix(:, :, end/2));
+axis image; title('Difference Image - Z-axis'); set(gca, "Fontsize", 20);
+
+subplot(2, 3, 5);
+imagesc(squeeze(newMatrix(end/2, :, :) - referenceMatrix(end/2, :, :)));
+axis image; title('Difference Image - X-axis'); set(gca, "Fontsize", 20);
+
+subplot(2, 3, 6);
+imagesc(squeeze(newMatrix(:, end/2, :) - referenceMatrix(:, end/2, :)));
+axis image; title('Difference Image - Y-axis'); set(gca, "Fontsize", 20);
+
 
 %% Evaluate the result
 % Calculate the degree of complexity and differences between the matrices.
@@ -128,6 +88,3 @@ fprintf('Grade by Degree of Complexity: %d\n', DoCgrade);
 
 Volumegrade = Diff / sum(referenceMatrix, "all");
 fprintf('Grade by Volume: %d\n', Volumegrade);
-
-% Calculate the difference matrix between the new matrix and the full matrix.
-DiffMatrix = newMatrix - fullMatrix;
