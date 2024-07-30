@@ -17,14 +17,16 @@ class MeshVoxelizer:
         Number of grid points along the Z-axis.
     scale : float
         The scale factor to adjust the size of the grid.
+    spacing : tuple
+        The spacing between the grid points along each axis.
     lower : np.ndarray
         Lower bounds of the grid after scaling.
     background : np.ndarray
         The background grid to which the voxelized mesh will be added.
     label : int
         The label to assign to voxels inside the mesh.
-    voxelValues : np.ndarray, optional
-        Array to hold the voxel values (initialized as None).
+    smoothedMatrix : np.ndarray
+        Matrix that determines which points are ignored during voxelization.
     """
 
     def __init__(self, mesh, smoothedMatrix, x, y, z, scale, spacing, background, bounds, label):
@@ -35,6 +37,8 @@ class MeshVoxelizer:
         ----------
         mesh : vtk.vtkPolyData
             The input mesh to be voxelized.
+        smoothedMatrix : np.ndarray
+            Matrix that determines which points are ignored during voxelization.
         x : int
             Number of grid points along the X-axis.
         y : int
@@ -43,6 +47,8 @@ class MeshVoxelizer:
             Number of grid points along the Z-axis.
         scale : float
             Scale factor to adjust the size of the grid.
+        spacing : tuple
+            The spacing between the grid points along each axis.
         background : np.ndarray
             The background grid to which the voxelized mesh will be added.
         bounds : list of tuples
@@ -84,18 +90,17 @@ class MeshVoxelizer:
                     py = round((j - self.lower[1]) / dx[1]) + int(self.lower[1] / dx[1])
                     pz = round((i - self.lower[2]) / dx[2]) + int(self.lower[2] / dx[2])
     
-                    #A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
-                    if smoothedMatrix[int(k), int(j), int(i)] == 1:
-                        background[px,py,pz] = label
-                    elif smoothedMatrix[int(k), int(j), int(i)] == 0:
+                    # A point is ignored if its corresponding point on the smoothed matrix is 1 or 0
+                    if self.smoothedMatrix[int(k), int(j), int(i)] == 1:
+                        self.background[px, py, pz] = self.label
+                    elif self.smoothedMatrix[int(k), int(j), int(i)] == 0:
                         continue 
-
                     else:
                         point = np.array([i - self.lower[2], j - self.lower[1], k - self.lower[0]], dtype=float)
                         distance = distanceFilter.EvaluateFunction(point)
     
                         # Update background grid with label if point is inside the mesh
                         if distance < 0.0:
-                            self.background[px,py,pz] = self.label
+                            self.background[px, py, pz] = self.label
                         
         return self.background
