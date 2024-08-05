@@ -116,18 +116,18 @@ Figure 4 presents a comparison of the results obtained from two commonly-used up
 
 ![Comparison against other methods. As depicted in the figure, the trilinear interpolation method has the highest error. The performance of our mesh-based method is slightly better compared to the Nearest Neighbor method. The sudden improvement at 0.5 may be related to index rounding. The mesh-based method outperforms the other two methods across the tested upsampling scales.](figure/method_comparsion.svg)
 
-*Figure 4: Comparison against other methods.*
+*Figure 4: Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.*
 
 Figure 4 shows that the trilinear interpolation method has the highest error across the tested upsampling regime. The performance of our mesh-based method is slightly better than the nearest-neighbor method. The sudden improvement at $dx = 0.5$ may be related to index rounding. Interestingly, all three methods show a trend of decreasing error percentage as the scale of upsampling increases, especially when $dx$ reaches 0.5. This trend may result from the normalization by volume; the number of voxels in the volume increases faster than the number of voxels at the object interface that are challenging to upsample accurately, as the scale of upsampling increases. 
 
 ## Demonstration
-Figure 5 presents a demonstration of a spine with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input data is sourced from Liebl $et$ $al$. 2021 [^14]. This demonstration involves upsampling at a scale of 0.8 with spacing at [0.2910, 0.2910, 1.2500]. As depicted in the figure, despite the input data having a staircased appearance, our algorithm successfully smooths some of the output surface. This smoothing effect is particularly evident at the bottom vertebra.
+Figure 5 presents a demonstration of the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input data is sourced from Liebl $et$ $al$. 2021 [^14]. This demonstration involves upsampling at a scale of 0.8 with spacing at [0.2910, 0.2910, 1.2500]. As depicted in the figure, our algorithm successfully smooths some of the originally staircased verteral interfaces. This smoothing effect is particularly evident at the bottom vertebra.
 
 ![spineDemo](figure/spineDemo.svg)
 
 *Figure 5: Result demonstration of a spine.*
 
-Figure 6 illustrates another example of an upsampled medical image with input parameters $\sigma = 0.4$ and isovalue = 0.4, showcasing a liver obtained from the dataset [^15]. This demonstration also involves upsampling at a scale of 0.8 with spacing at [1, 1, 1]. As shown in the figure, our algorithm clearly upsampled the structure for several complex, attached shapes, leaving no gaps between different labels.
+Figure 6 illustrates another example of an upsampled multi-label medical image with input parameters $\sigma = 0.4$ and isovalue = 0.4, showcasing a liver obtained from the female Visible Human Project dataset [^15]. This demonstration also involves upsampling at a scale of 0.8 with spacing at [1, 1, 1]. As shown in the figure, our algorithm clearly upsampled the structure for several complex, attached shapes, without leaving gaps between labels.
 
 ![liverDemo](figure/liverDemo.svg)
 
@@ -135,7 +135,7 @@ Figure 6 illustrates another example of an upsampled medical image with input pa
 
 # Acknowledgements
 
-something
+This work was supported in part by a UKRI Future Leaders Fellowship (Grant MR/T019166/1) and in part by the Wellcome/EPSRC Centre for Interventional and Surgical Sciences (WEISS) (No. 203145Z/16/Z). For the purpose of open access, the author has applied a CC BY public copyright licence to any Author Accepted Manuscript version arising from this submission. 
 
 # References
 [^1]: Bachu, E. (2021). High-Intensity Focused Ultrasound in Cancer Treatment.
