@@ -19,7 +19,8 @@ MATLAB package:\
 k-wave (http://www.k-wave.org/)
 
 ## Examples
-Code $MultilabelExample.m$ is an example of processing generated complex shape compare to a high resolution ground truth.
+
+Code $multilabelExample.m$ is an example of processing generated complex shape compare to a high resolution ground truth.
 
 Code $vertrbraExample.m$ is an example of processing medical image. Figure 1 presents a demonstration of the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input data is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration involves upsampling at a scale of 0.8 with spacing at [0.2910, 0.2910, 1.2500]. 
 
