@@ -34,5 +34,18 @@ Code $AustinWomanKindeySliceExample.m$ is another example of processing medical 
 
 *Figure 2: Mesh-based upsampling demonstration with a kidney and surrounding organs from the female Visible Human Project dataset [^2].*
 
+## Test
+
+Code $MultilabelGridSearch.m$ provides a method to find optimal parameter setting to upsample testing shapes through grid search.
+
+Code $methodComparsion.m$ provides a comparsion of this mesh-based method against naive upsampling method in processing testing shape.
+
+Code $normalizationomparsion.m$ provides a comparsion of using different error matrices for evaluating upsampled result. But both error matrices requires a high resolution ground truth.
+
+Code $IsovalueVSVolume.m$ provides the variation of volume ratio against isovalue. Can be refer to if user want to select isovalue automatically.
+
+
+## Reference
+
 [^1]:Liebl, H., Schinz, D., Sekuboyina, A., Malagutti, L., Löffler, M. T., Bayat, A., ... & Kirschke, J. S. (2021). A computed tomography vertebral segmentation dataset with anatomical variations and multi-vendor scanner data. Scientific data, 8(1), 284.
 [^2]:Massey, J. W., & Yilmaz, A. E. (2016, August). AustinMan and AustinWoman: High-fidelity, anatomical voxel models developed from the VHP color images. In 2016 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC) (pp. 3346-3349). IEEE.
