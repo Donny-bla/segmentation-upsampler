@@ -1,0 +1,13 @@
+from UpsampleMultiLabels import upsample
+import numpy as np
+
+if __name__ == '__main__':
+    originalMatrix = np.load("../data/multilabelTestShape.npy")
+    outputMatrix = np.load("../data/NBFalsefillGapsFalse.npy")
+    sigma = 0.6
+    targetVolume = 0
+    scale = [0.5, 0.5, 0.5]
+    spacing = [1 1 1]
+    iso = 0.4
+    fillG
+    assert upsample(originalMatrix, ) == 3
