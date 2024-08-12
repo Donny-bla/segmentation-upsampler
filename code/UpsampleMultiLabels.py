@@ -1,10 +1,10 @@
 import numpy as np
-from RigorousPreprocess import MeshPreprocessor
-from Extractor import IsosurfaceExtractor
-from Voxelizer import MeshVoxelizer
-from VoxelizerNumba import MeshVoxelizerNumba
-from LabelSeparater import LabelSeparation
-from FillGaps import FillGaps
+from code.RigorousPreprocess import MeshPreprocessor
+from code.Extractor import IsosurfaceExtractor
+from code.Voxelizer import MeshVoxelizer
+from code.VoxelizerNumba import MeshVoxelizerNumba
+from code.LabelSeparater import LabelSeparation
+from code.FillGaps import FillGaps
 """
 Perform upsampling for a labelled image
 
