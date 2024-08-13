@@ -1,18 +1,15 @@
 %% Create some data
 clear all;
-
 % Low resolution.
 N = 60;
 radius = round(N/3);
-posxy = N/2;
+shapes = makeShapes("Complex", [radius], [N,N,N], [0, 0, 0]);
 
-
-shapes = cell(1, 2);
-
-shapes{1} = makeShapes("Complex", [radius], [N,N,N], [0, 0, 0]);
-%shapes{2} = makeshapes("ball", [radius], [N,N,N], [0, 0, 0]);
-
-
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
 %% Set Upsample Setting
 sigma = 0.68;
 Volume = 0;
@@ -33,7 +30,6 @@ for s = 1:3
     DoCdxgrade = [];
     
     for ii = dx
-        disp(ii)
         % Create reference data
         Nref = floor(double(N / ii));
         radiusRef = floor(radius / ii);
@@ -41,7 +37,7 @@ for s = 1:3
         switch(s)
             case 1
                 %newMatrix = pyrunfile("UpsampleMultiLabels.py","newMatrix", multiLabelMatrix = py.numpy.array(originalMatrix), sigma = sigma, targetVolume = Volume, scale = ii, iso = isovalue);
-                newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
+                newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...

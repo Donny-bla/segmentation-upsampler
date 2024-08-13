@@ -2,7 +2,12 @@
 % This script upsamples a 3D medical image obtained from austin woman
 % citation: J. W. Massey and A. E. Yilmaz, "AustinMan and AustinWoman: High-fidelity, anatomical voxel models developed from the VHP color images," in Proc. 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (IEEE EMBC), Orlando, FL, Aug. 2016.
 % url: https://web.corral.tacc.utexas.edu/AustinManEMVoxels/AustinWoman/index.html
-
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+dataDirect = folderPath + "data";
+addpath(codeDirect)
 %% Important Variables
 % dx: Grid spacing for upsampling
 % sigma: Gaussian smoothing parameter 
@@ -16,14 +21,14 @@ Volume = 0;
 
 %% Create some data
 % Generate an initial 3D shape matrix with multiple labels.
-load("padded_liver.mat")
+load(dataDirect + "\padded_liver.mat")
 originalMatrix = paddMatrix;
 %originalMatrix = double(Mask);
 
 %% Upsample the original matrix
 % Use a Python script to upsample the original matrix.
 pyenv;
-newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...

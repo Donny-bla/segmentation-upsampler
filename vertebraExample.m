@@ -2,7 +2,12 @@
 % This script upsamples a 3D segmented vertebra
 % citation: Liebl, H., Schinz, D., Sekuboyina, A., Malagutti, L., Löffler, M. T., Bayat, A., ... & Kirschke, J. S. (2021). A computed tomography vertebral segmentation dataset with anatomical variations and multi-vendor scanner data. Scientific data, 8(1), 284
 % url: https://osf.io/t98fz/
-
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+dataDirect = folderPath + "data";
+addpath(codeDirect)
 %% Important Variables
 % dx: Grid spacing for upsampling
 % sigma: Gaussian smoothing parameter 
@@ -13,17 +18,17 @@ dx = 0.8;
 sigma = 0.7;                  
 isovalue = 0.4;               
 Volume = 0;  
-spacing = [0.2910 0.2910 1.2500];
 
 %% Create some data
 % Generate an initial 3D shape matrix with multiple labels.
-Mask = niftiread("sub-gl003_dir-ax_seg-vert_msk.nii.gz");
+Mask = niftiread(dataDirect + "\sub-gl003_dir-ax_seg-vert_msk.nii.gz");
+info = niftiinfo(dataDirect + "\sub-gl003_dir-ax_seg-vert_msk.nii.gz");
 originalMatrix = double(Mask);
-
+spacing  = info.PixelDimensions;
 %% Upsample the original matrix
 % Use a Python script to upsample the original matrix.
 pyenv;
-newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...

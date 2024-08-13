@@ -1,4 +1,9 @@
 % Investigate the effect of volume ratio in selecting isovalue
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
 %% Generate an original 3D shape matrix with complex structure
 originalMatrix = makeShapes("Complex", [20], [60,60,60], [0,0,0]);
 
@@ -34,7 +39,8 @@ for ii = iso
     end
     v_1p5(end+1) = t / log(abs(smoothedVolume1p5 - originalVolume) / originalVolume);
 end
-
+%%
+figure
 % Plot the results
 hold on
 plot(iso, v_0p7) % Plot volume ratios for sigma = 0.7

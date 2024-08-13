@@ -2,7 +2,12 @@
 % This script creates 3D shapes in a low-resolution grid, upsamples them, 
 % creates reference data, visualizes the results, and evaluates the 
 % differences using various metrics.            
-
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+dataDirect = folderPath + "data";
+addpath(codeDirect)
 %% Important Variables
 % N: Grid size for the low-resolution grid
 % radius: Radius of the shape
@@ -15,7 +20,7 @@
 N = 60;                       
 radius = round(N/3);          
 dx = [0.5, 0.5, 0.5];  
-spacing = [1, 1, 1]; % mm
+spacing = [1.0, 1.0, 1.0]; % mm
 sigma = 0.6;                  
 isovalue = 0.4;               
 Volume = 0;        
@@ -30,7 +35,7 @@ originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 %% Upsample the original matrix
 % Use a Python script to upsample the original matrix.
 pyenv;
-newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...

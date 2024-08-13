@@ -7,6 +7,11 @@ radius = round(N / 3); % Radius for the shape
 % Generate a complex shape using the makeShapes function
 originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
 %% Set Upsample Setting
 % Define upsampling parameters
 dx = 0.25; % Grid spacing for upsampling
@@ -47,7 +52,7 @@ for s = sigma
         disp(s) % Display the current sigma value
         
         % Upsample the original shape using the pyUpsampleLabel function
-        newMatrix = pyrunfile("UpsampleMultiLabels.py", ...
+        newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                               "newMatrix", ...
                               multiLabelMatrix = py.numpy.array(originalMatrix), ...
                               sigma = s, ...
