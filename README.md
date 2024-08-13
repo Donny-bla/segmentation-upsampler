@@ -1,5 +1,3 @@
-Latest update available in the other branch.
-
 # Segmentation Upsampler
 
 This is a Python based software for upsampling segmentated image. Using mesh based method, aimed to reduce staircasing effect in upsampling and improve accuracy of ultrasound simulation.
