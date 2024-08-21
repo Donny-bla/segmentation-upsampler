@@ -10,10 +10,10 @@ authors:
     orcid: 0000-0000-0000-0000
     equal-contrib: true
     affiliation: 1
-  - name: Rui Xu
+  - name: Bradley Treeby
     equal-contrib: false # (This is how you can denote equal contributions between multiple authors)
     affiliation: 1
-  - name: Bradley Treeby
+  - name: Rui Xu
     equal-contrib: false # (This is how you can denote equal contributions between multiple authors)
     affiliation: 1
     
