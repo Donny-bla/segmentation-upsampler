@@ -2,47 +2,90 @@ import numpy as np
 
 class LabelSeparation:
     """
-    A class for separating labels in a matrix and analyzing label volumes.
+LABELSEPARATION Separate labels in a matrix and analyze label volumes.
 
-    Attributes:
-    ----------
+DESCRIPTION:
+    LABELSEPARATION is a class designed to separate labels in a 
+    multi-label matrix and calculate the volume (number of elements) 
+    for each label. The separated labels are stored in a 4D array 
+    where each slice along the first axis corresponds to a binary 
+    matrix for a specific label.
+
+USAGE:
+    separator = LabelSeparation(multiLabelMatrix)
+    separator.separateLabels()
+    separatedMatrices, labelVolumes, labels = separator.getResults()
+
+INPUTS:
     multiLabelMatrix : numpy.ndarray
         Matrix with integer labels.
-    x : int
-        Size of the matrix along the x-axis.
-    y : int
-        Size of the matrix along the y-axis.
-    z : int
-        Size of the matrix along the z-axis.
-    labels : numpy.ndarray
-        Array of unique labels in the matrix.
-    separateMatrix : numpy.ndarray
-        4D array where each slice along the first axis contains a binary matrix
-        for each label.
-    labelVolume : numpy.ndarray
+
+OUTPUTS:
+    separatedMatrices : numpy.ndarray
+        4D array where each slice along the first axis contains a 
+        binary matrix for each label.
+    labelVolumes      : numpy.ndarray
         Array containing the volume (number of elements) for each label.
-    """
+    labels            : numpy.ndarray
+        Array of unique labels in the matrix.
+
+ABOUT:
+    author            : Liangpu Liu, Rui Xu, and Bradley Treeby.
+    date              : 25th Aug 2024
+    last update       : 25th Aug 2024
+
+LICENSE:
+    This function is part of the k-Wave Toolbox (http://www.k-wave.org).
+    Copyright (C) 2009-2013 Liangpu Liu, Rui Xu, and Bradley Treeby.
+
+This file is part of k-Wave. k-Wave is free software: you can 
+redistribute it and/or modify it under the terms of the GNU Lesser 
+General Public License as published by the Free Software Foundation, 
+either version 3 of the License, or (at your option) any later 
+version.
+
+k-Wave is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY 
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General 
+Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public 
+License along with k-Wave. If not, see <http://www.gnu.org/licenses/>.
+"""
 
     def __init__(self, multiLabelMatrix):
         """
-        Initialize the LabelSeparation instance.
+        INIT Initialize the LabelSeparation instance.
 
-        Parameters:
-        ----------
-        multiLabelMatrix : numpy.ndarray
-            Matrix with integer labels.
+        DESCRIPTION:
+            INIT initializes the LabelSeparation class with the 
+            multi-label matrix. The matrix is analyzed to extract unique 
+            labels and prepare the storage for the separated matrices 
+            and their volumes.
+
+        INPUTS:
+            multiLabelMatrix : numpy.ndarray
+                Matrix with integer labels.
         """
         self.multiLabelMatrix = multiLabelMatrix
         self.x, self.y, self.z = multiLabelMatrix.shape
         self.labels = np.unique(self.multiLabelMatrix)
         if self.labels[0] == 0:
             self.labels = self.labels[1:]
-        self.separateMatrix = np.zeros((len(self.labels), self.x, self.y, self.z), dtype=int)
+        self.separateMatrix = np.zeros((len(self.labels), self.x, self.y, 
+                                        self.z), dtype=int)
         self.labelVolume = np.zeros(len(self.labels), dtype=int)
 
     def separateLabels(self):
         """
-        Separate the labels in the matrix and calculate label volumes.
+        SEPARATELABELS Separate labels in the matrix and calculate volumes.
+
+        DESCRIPTION:
+            SEPARATELABELS processes the multi-label matrix by separating 
+            each label into a binary matrix. It also calculates the volume 
+            for each label by summing the elements in the binary matrix. 
+            The labels and corresponding matrices are then sorted by 
+            volume in descending order.
         """
         for i, label in enumerate(self.labels):
             # Create a binary matrix where 1 corresponds to the current label
@@ -61,11 +104,19 @@ class LabelSeparation:
 
     def getResults(self):
         """
-        Get the separated matrices, label volumes, and labels.
+        GETRESULTS Retrieve separated matrices, label volumes, and labels.
 
-        Returns:
-        -------
-        tuple:
-            A tuple containing the separated matrices, label volumes, and labels.
+        DESCRIPTION:
+            GETRESULTS returns the separated binary matrices, the label 
+            volumes, and the unique labels in the matrix.
+
+        OUTPUTS:
+            separatedMatrices : numpy.ndarray
+                4D array where each slice along the first axis contains a 
+                binary matrix for each label.
+            labelVolumes      : numpy.ndarray
+                Array containing the volume (number of elements) for each label.
+            labels            : numpy.ndarray
+                Array of unique labels in the matrix.
         """
         return np.float32(self.separateMatrix), self.labelVolume, self.labels
