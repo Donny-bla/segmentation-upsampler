@@ -34,15 +34,15 @@ function shapeObject = makeShapes(shapeType, objectSize, gridSize, ...
 %     - MultiLabel
 %
 % ABOUT:
-%     author         - Your Name
+%     author         - Liangpu Liu, Rui Xu, Bradley Treeby
 %     date           - 25th Aug 2024
 %     last update    - 25th Aug 2024
 %
-% See also: makeBall, makeShapes
+% See also: makeBall
 %
 % LICENSE:
 %     This function is part of the k-Wave Toolbox (http://www.k-wave.org).
-%     Copyright (C) 2009-2013 Author Name and Author Name.
+%     Copyright (C) 2009-2013  Liangpu Liu, Rui Xu, Bradley Treeby.
 %
 %     This file is part of k-Wave. k-Wave is free software: you can
 %     redistribute it and/or modify it under the terms of the GNU Lesser
