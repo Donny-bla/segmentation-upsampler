@@ -1,3 +1,9 @@
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
+
 %% Create some data
 clear all;
 
@@ -7,11 +13,6 @@ radius = round(N / 3); % Radius of the shape
 % Generate a complex multi-label shape using the makeShapes function
 originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-addpath(codeDirect)
 %% Set Upsample Setting
 dx = 0.3; % Grid spacing for upsampling
 
