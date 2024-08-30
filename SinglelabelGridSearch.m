@@ -1,3 +1,9 @@
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
+
 %% Create some data
 clear all;
 
@@ -7,11 +13,6 @@ radius = round(N / 3); % Radius for the shape
 % Generate a complex shape using the makeShapes function
 originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-addpath(codeDirect)
 %% Set Upsample Setting
 % Define upsampling parameters
 dx = 0.25; % Grid spacing for upsampling
