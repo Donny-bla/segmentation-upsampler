@@ -1,3 +1,9 @@
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
+
 %% Create some data
 clear all;
 % Low resolution.
@@ -5,11 +11,6 @@ N = 60;
 radius = round(N/3);
 shapes = makeShapes("Complex", [radius], [N,N,N], [0, 0, 0]);
 
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-addpath(codeDirect)
 %% Set Upsample Setting
 sigma = 0.68;
 Volume = 0;
