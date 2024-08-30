@@ -1,3 +1,9 @@
+filePath = matlab.desktop.editor.getActiveFilename;
+idx = strfind(filePath, '\');
+folderPath = filePath(1:idx(end));
+codeDirect = folderPath + "code";
+addpath(codeDirect)
+
 %% Create some data
 clear all;
 
@@ -11,11 +17,6 @@ shapes{4} = makeShapes("Ball", [20], [45,45,45], [0, 0, 0]);
 % Initialize cell array to store reference shapes
 referenceShapes = cell(1, 4);
 
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-addpath(codeDirect)
 %% Set Upsample Setting
 % Define upsampling parameters
 Volume = 0;
