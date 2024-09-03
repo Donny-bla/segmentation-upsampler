@@ -1,3 +1,4 @@
+clear all;
 filePath = matlab.desktop.editor.getActiveFilename;
 idx = strfind(filePath, '\');
 folderPath = filePath(1:idx(end));
@@ -5,8 +6,6 @@ codeDirect = folderPath + "code";
 addpath(codeDirect)
 
 %% Create some data
-clear all;
-
 % Set low resolution parameters
 N = 60; % Grid size
 radius = round(N / 3); % Radius for the shape
@@ -18,15 +17,15 @@ originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 dx = 0.25; % Grid spacing for upsampling
 
 % Define ranges for sigma (smoothing factor) and isovalue (threshold)
-sigma = 0.6:0.02:1; % Range of sigma values
-isovalue = 0.47:0.003:0.53; % Range of isovalue values
+%sigma = 0.6:0.02:1; % Range of sigma values
+%isovalue = 0.47:0.003:0.53; % Range of isovalue values
 
 % Other parameter setting used in test
 % sigma = 0.6:0.04:1.4;
 % Volume = -0.3:0.03:0.3;
-% sigma = 0:0.2:2;
+sigma = 0:0.2:2;
 % Volume = -0.5:0.1:0.5;
-% isovalue = 0.4:0.02:0.6;
+isovalue = 0.4:0.02:0.6;
 %% Create reference data
 % Define parameters for reference data rasterization
 Nref = floor(N / dx); % Grid size for reference data
@@ -63,7 +62,7 @@ for s = sigma
                               iso = iso, ...
                               fillGaps = false, ...
                               NB = true);
-        
+        newMatrix = double(newMatrix);
         % Calculate the difference between the new and reference matrices
         DifferenceMatrix = newMatrix - referenceMatrix;
         Diff = sum(abs(DifferenceMatrix), "all"); % Sum of absolute differences
@@ -84,6 +83,10 @@ figure
 
 % Plot grades by Degree of Complexity (DoC)
 subplot(1, 2, 1)
+colormap(subplot(1, 2, 1), 'hot'); % Set colormap to 'hot' for the second subplot
+cb = colorbar();
+cb.Label.String = 'Grade by Degree of Complexity';
+cb.FontSize = 14;
 hold on
 imagesc(isovalue, sigma, AllDoCdxgrade) % Display DoC grades as an image
 hold off
