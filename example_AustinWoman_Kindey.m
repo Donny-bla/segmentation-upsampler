@@ -1,32 +1,61 @@
-%% Generate and process 3D medical image without evaluating the results.
-% This script upsamples a 3D medical image obtained from austin woman
-% citation: J. W. Massey and A. E. Yilmaz, "AustinMan and AustinWoman: High-fidelity, anatomical voxel models developed from the VHP color images," in Proc. 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (IEEE EMBC), Orlando, FL, Aug. 2016.
-% url: https://web.corral.tacc.utexas.edu/AustinManEMVoxels/AustinWoman/index.html
+%% GENERATE AND PROCESS 3D MEDICAL IMAGE WITHOUT EVALUATING RESULTS
+% This script upsamples a 3D medical image obtained from the AustinWoman 
+% dataset. The script demonstrates the steps involved in preparing and 
+% processing 3D medical image data without evaluating the results.
+%
+% CITATION:
+% J. W. Massey and A. E. Yilmaz, "AustinMan and AustinWoman: 
+% High-fidelity, anatomical voxel models developed from the VHP color 
+% images," in Proc. 38th Annual International Conference of the IEEE 
+% Engineering in Medicine and Biology Society (IEEE EMBC), Orlando, 
+% FL, Aug. 2016.
+% URL: https://web.corral.tacc.utexas.edu/AustinManEMVoxels/AustinWoman/index.html
+%
+% AUTHOR:
+%     Liangpu Liu, Rui Xu, Bradley Treeby
+% DATE:
+%     26th August 2024
+% LAST UPDATE:
+%     26th August 2024
+%
+% This script is part of the k-Wave Toolbox (http://www.k-wave.org).
+% Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
+%
+% This script is distributed under the terms of the GNU Lesser General 
+% Public License as published by the Free Software Foundation, either 
+% version 3 of the License, or (at your option) any later version.
+% See <http://www.gnu.org/licenses/>.
+
+%% SETUP FILE PATHS AND ADD DEPENDENCIES
+% Define the paths to the required code and data directories.
 filePath = matlab.desktop.editor.getActiveFilename;
 idx = strfind(filePath, '\');
 folderPath = filePath(1:idx(end));
 codeDirect = folderPath + "code";
 dataDirect = folderPath + "data";
 addpath(codeDirect)
-%% Important Variables
+
+%% IMPORTANT VARIABLES
+% Define key variables used in the upsampling process.
 % dx: Grid spacing for upsampling
 % sigma: Gaussian smoothing parameter 
-% isovalue: Isovalue for isosurface extraction (will be ignored unless Volume is not applied)
-% Volume: Target volume for upsampling (0 to not applied)
+% isovalue: Isovalue for isosurface extraction (ignored if Volume is 0)
+% Volume: Target volume for upsampling (0 to ignore)
 
 dx = 0.8;                     
 sigma = 0.4;                  
 isovalue = 0.4;               
-Volume = 0;  
+Volume = 0;                   
 
-%% Create some data
-% Generate an initial 3D shape matrix with multiple labels.
+%% LOAD AND PREPARE DATA
+% Load the initial 3D shape matrix with multiple labels from a file.
 load(dataDirect + "\padded_liver.mat")
 originalMatrix = paddMatrix;
-%originalMatrix = double(Mask);
 
-%% Upsample the original matrix
-% Use a Python script to upsample the original matrix.
+%% UPSAMPLE THE ORIGINAL MATRIX
+% Use a Python script to upsample the original matrix. The upsampling is 
+% performed by invoking a Python script that applies a series of 
+% transformations to the 3D data.
 pyenv;
 newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       "newMatrix", ...
@@ -40,13 +69,18 @@ newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
                       NB = true);
 
 newMatrix = double(newMatrix);
-%% Plot results
+
+%% PLOT RESULTS
+% Visualize the original and upsampled 3D matrices.
 figure;
 subplot(1, 2, 1);
 imagesc(originalMatrix(:, :, 17));
-axis image; title(sprintf('Input Image')); set(gca, "Fontsize", 20);
+axis image; 
+title(sprintf('Input Image')); 
+set(gca, "Fontsize", 20);
 
 subplot(1, 2, 2);
 imagesc(newMatrix(:, :, 20));
-axis image; title(sprintf('Output Image')); set(gca, "Fontsize", 20);
-
+axis image; 
+title(sprintf('Output Image, Gap filling applied')); 
+set(gca, "Fontsize", 20);
