@@ -62,7 +62,7 @@ for s = sigma
     Gapsgrade = [];    % Initialize for each sigma
     
     for iso = isovalue
-        disp(['Processing Sigma: ', num2str(s), ', Isovalue: ', num2str(iso)]); % Display current settings
+        disp(['Processing Sigma: ', num2str(s), ', Isovalue: ', num2str(iso)]); 
 
         % Initialize Python environment
         pyenv;
