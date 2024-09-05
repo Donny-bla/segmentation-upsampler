@@ -20,12 +20,11 @@
 
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 % Define the paths to the required code and data directories.
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-dataDirect = folderPath + "data";
+folderPath = pwd;
+codeDirect = folderPath + "/code";
+dataDirect = folderPath + "/data";
 addpath(codeDirect)
+
 
 %% IMPORTANT VARIABLES
 % Define key variables used in the 3D shape creation and upsampling process.
@@ -56,7 +55,7 @@ originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 %% UPSAMPLE THE ORIGINAL MATRIX
 % Use a Python script to upsample the original matrix.
 pyenv;
-newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...
