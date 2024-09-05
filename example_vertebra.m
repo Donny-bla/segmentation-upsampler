@@ -28,11 +28,9 @@
 
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 % Define the paths to the required code and data directories.
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-dataDirect = folderPath + "data";
+folderPath = pwd;
+codeDirect = folderPath + "/code";
+dataDirect = folderPath + "/data";
 addpath(codeDirect)
 
 %% IMPORTANT VARIABLES
@@ -49,8 +47,8 @@ Volume = 0;
 
 %% LOAD AND PREPARE DATA
 % Load the initial 3D segmented vertebra matrix from a NIfTI file.
-Mask = niftiread(dataDirect + "\sub-gl003_dir-ax_seg-vert_msk.nii.gz");
-info = niftiinfo(dataDirect + "\sub-gl003_dir-ax_seg-vert_msk.nii.gz");
+Mask = niftiread(dataDirect + "/sub-gl003_dir-ax_seg-vert_msk.nii.gz");
+info = niftiinfo(dataDirect + "/sub-gl003_dir-ax_seg-vert_msk.nii.gz");
 originalMatrix = double(Mask);
 spacing  = info.PixelDimensions;  % Extract pixel spacing information
 
@@ -59,7 +57,7 @@ spacing  = info.PixelDimensions;  % Extract pixel spacing information
 % performed by invoking a Python script that applies a series of 
 % transformations to the 3D data.
 pyenv;
-newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...
