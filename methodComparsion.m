@@ -1,5 +1,5 @@
 %% INVESTIGATE UPSAMPLING METHODS FOR 3D SHAPES
-% This script compares two different method for evaluating upsample quality 
+% This script compares two different method for upsampling complex test object 
 % 3D shapes: Mesh-based, trilinear interpolation, and nearest-neighbor. 
 % It evaluates the performance of each method based on Degree of Complexity (DoC) 
 % and volume grade as a function of upsampling grid spacing (dx).
