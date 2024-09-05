@@ -28,11 +28,9 @@
 
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 % Define the paths to the required code and data directories.
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
-dataDirect = folderPath + "data";
+folderPath = pwd;
+codeDirect = folderPath + "/code";
+dataDirect = folderPath + "/data";
 addpath(codeDirect)
 
 %% IMPORTANT VARIABLES
@@ -49,7 +47,7 @@ Volume = 0;
 
 %% LOAD AND PREPARE DATA
 % Load the initial 3D shape matrix with multiple labels from a file.
-load(dataDirect + "\padded_liver.mat")
+load(dataDirect + "/padded_liver.mat")
 originalMatrix = paddMatrix;
 
 %% UPSAMPLE THE ORIGINAL MATRIX
@@ -57,7 +55,7 @@ originalMatrix = paddMatrix;
 % performed by invoking a Python script that applies a series of 
 % transformations to the 3D data.
 pyenv;
-newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...
