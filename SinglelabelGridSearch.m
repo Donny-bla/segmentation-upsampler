@@ -1,58 +1,76 @@
+%% CONDUCT GRID SEARCH OF SIGMA AND ISOVALUE ON UPSAMPLING SINGLELABEL
+% This script scans various sigma (smoothing factor) and isovalue (threshold)
+% settings to evaluate their effects on upsampling a complex 3D shape.
+% It computes volume and Degree of Complexity (DoC) differences between the 
+% upsampled and reference shapes.
+
+% AUTHOR:
+%     Liangpu Liu, Rui Xu, Bradley Treeby
+% DATE:
+%     4th September 2024
+% LAST UPDATE:
+%     4th September 2024
+%
+% This script is part of the k-Wave Toolbox (http://www.k-wave.org).
+% Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
+%
+% This script is distributed under the terms of the GNU Lesser General 
+% Public License as published by the Free Software Foundation, either 
+% version 3 of the License, or (at your option) any later version.
+% See <http://www.gnu.org/licenses/>.
+
 clear all;
-filePath = matlab.desktop.editor.getActiveFilename;
-idx = strfind(filePath, '\');
-folderPath = filePath(1:idx(end));
-codeDirect = folderPath + "code";
+
+%% SETUP FILE PATHS AND ADD DEPENDENCIES
+% Define the paths to the required code directory.
+folderPath = pwd;
+codeDirect = folderPath + "/code";
+dataDirect = folderPath + "/data";
 addpath(codeDirect)
 
-%% Create some data
-% Set low resolution parameters
-N = 60; % Grid size
-radius = round(N / 3); % Radius for the shape
-% Generate a complex shape using the makeShapes function
+%% CREATE ORIGINAL 3D SHAPE MATRIX
+% Low-resolution grid parameters
+N = 60;                      % Grid size
+radius = round(N / 3);        % Radius of the shape
+
+% Generate a complex multi-label 3D shape matrix
 originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 
-%% Set Upsample Setting
-% Define upsampling parameters
-dx = 0.25; % Grid spacing for upsampling
+%% SET UPSAMPLE SETTINGS
+dx = 0.25;                    % Grid spacing for upsampling
 
 % Define ranges for sigma (smoothing factor) and isovalue (threshold)
-%sigma = 0.6:0.02:1; % Range of sigma values
-%isovalue = 0.47:0.003:0.53; % Range of isovalue values
+sigma = 0:0.2:2;              % Range of sigma values
+isovalue = 0.4:0.02:0.6;      % Range of isovalue values
 
-% Other parameter setting used in test
-% sigma = 0.6:0.04:1.4;
-% Volume = -0.3:0.03:0.3;
-sigma = 0:0.2:2;
-% Volume = -0.5:0.1:0.5;
-isovalue = 0.4:0.02:0.6;
-%% Create reference data
+%% CREATE REFERENCE DATA
 % Define parameters for reference data rasterization
-Nref = floor(N / dx); % Grid size for reference data
-fac = 1 / dx; % Upscaling factor
-radiusRef = radius / dx; % Scaled radius for the reference shape
+Nref = floor(N / dx);         % Grid size for reference data
+fac = 1 / dx;                 % Upscaling factor
+radiusRef = radius / dx;      % Scaled radius for the reference shape
 
 % Generate the reference shape using the makeShapes function
 referenceMatrix = makeShapes("Complex", [radiusRef], [Nref, Nref, Nref], [0, 0, 0]);
 
-%% Initialize arrays to store grades
-AllVolumegrade = []; % Array to store volume grades
-AllDoCdxgrade = []; % Array to store Degree of Complexity (DoC) grades
-
-% Calculate Degree of Complexity for the original shape
+%% CALCULATE DEGREE OF COMPLEXITY FOR ORIGINAL SHAPE
 DoC = DegreeOfComplexity(originalMatrix);
 
+%% INITIALIZE ARRAYS TO STORE RESULTS
+AllVolumegrade = [];  % Array to store volume grades
+AllDoCdxgrade = [];   % Array to store DoC grades
+
+%% SCAN THROUGH SIGMA AND ISOVALUE COMBINATIONS
 % Loop through each sigma value
 for s = sigma    
-    Volumegrade = []; % Initialize array to store volume grades for each sigma
-    DoCdxgrade = []; % Initialize array to store DoC grades for each sigma
+    Volumegrade = []; % Initialize array for volume grades
+    DoCdxgrade = [];  % Initialize array for DoC grades
     
     % Loop through each isovalue
     for iso = isovalue
-        disp(s) % Display the current sigma value
-        
-        % Upsample the original shape using the pyUpsampleLabel function
-        newMatrix = pyrunfile(codeDirect + "\UpsampleMultiLabels.py", ...
+        disp(['Sigma: ', num2str(s), ', Isovalue: ', num2str(iso)])  % Display current settings
+
+        % Upsample the original shape using the Python script
+        newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
                               "newMatrix", ...
                               multiLabelMatrix = py.numpy.array(originalMatrix), ...
                               sigma = s, ...
@@ -62,10 +80,11 @@ for s = sigma
                               iso = iso, ...
                               fillGaps = false, ...
                               NB = true);
-        newMatrix = double(newMatrix);
-        % Calculate the difference between the new and reference matrices
+        newMatrix = double(newMatrix);  % Convert Python result to double
+
+        % Calculate the difference between new and reference matrices
         DifferenceMatrix = newMatrix - referenceMatrix;
-        Diff = sum(abs(DifferenceMatrix), "all"); % Sum of absolute differences
+        Diff = sum(abs(DifferenceMatrix), "all");  % Sum of absolute differences
     
         % Compute grades based on volume differences and DoC
         Volumegrade(end+1) = Diff / sum(referenceMatrix, "all");
@@ -77,36 +96,36 @@ for s = sigma
     AllVolumegrade = [AllVolumegrade; Volumegrade];
 end
 
-%% Plotting
-% Create figure for plotting the results
-figure
+%% PLOT RESULTS
+figure;
 
 % Plot grades by Degree of Complexity (DoC)
 subplot(1, 2, 1)
-colormap(subplot(1, 2, 1), 'hot'); % Set colormap to 'hot' for the second subplot
+colormap(subplot(1, 2, 1), 'hot');  % Set colormap to 'hot'
 cb = colorbar();
 cb.Label.String = 'Grade by Degree of Complexity';
 cb.FontSize = 14;
 hold on
-imagesc(isovalue, sigma, AllDoCdxgrade) % Display DoC grades as an image
+imagesc(isovalue, sigma, AllDoCdxgrade)  % Display DoC grades as an image
 hold off
 set(gca, 'FontSize', 14);
-title("Multi-label Dense Scan of Sigma and Isovalue", 'FontSize', 20)
+title("Multi-label Scan of Sigma and Isovalue", 'FontSize', 20)
 xlabel("Isovalue", 'FontSize', 20)
 ylabel("Sigma", 'FontSize', 20)
 
 % Plot grades by volume
 subplot(1, 2, 2)
-colormap(subplot(1, 2, 2), 'hot'); % Set colormap to 'hot' for the second subplot
+colormap(subplot(1, 2, 2), 'hot');  % Set colormap to 'hot'
 cb = colorbar();
 cb.Label.String = 'Grade by Volume';
 cb.FontSize = 14;
 hold on
-imagesc(isovalue, sigma, AllVolumegrade) % Display volume grades as an image
-contour(isovalue, sigma, AllVolumegrade, [0 0.04], 'LineWidth', 2, 'Color', 'blue', 'LineStyle', '--');
+imagesc(isovalue, sigma, AllVolumegrade)  % Display volume grades as an image
+contour(isovalue, sigma, AllVolumegrade, [0 0.04], 'LineWidth', 2, ...
+        'Color', 'blue', 'LineStyle', '--');  % Contour for volume grade 0.04
 hold off
 set(gca, 'FontSize', 14);
-title("Multi-label Dense Scan of Sigma and Isovalue", 'FontSize', 20)
+title("Multi-label Scan of Sigma and Isovalue", 'FontSize', 20)
 xlabel("Isovalue", 'FontSize', 20)
 ylabel("Sigma", 'FontSize', 20)
 legend("0.04", "FontSize", 14)
