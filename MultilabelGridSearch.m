@@ -7,9 +7,9 @@
 % AUTHOR:
 %     Liangpu Liu, Rui Xu, Bradley Treeby
 % DATE:
-%     26th August 2024
+%     4th September 2024
 % LAST UPDATE:
-%     26th August 2024
+%     4th September 2024
 %
 % This script is part of the k-Wave Toolbox (http://www.k-wave.org).
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
