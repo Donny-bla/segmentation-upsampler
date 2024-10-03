@@ -22,13 +22,13 @@ k-Wave (http://www.k-wave.org/)
 
 [example_multilabel_testobject.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_multilabel_testobject.m) upsamples a code-generated complex shape and compares it to a high-resolution code-generated ground truth.
 
-[example_vertebra.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_vertebra.m) resamples a medical image-based segementation of a human spine. Figure 1 depicts slices through the 3D spine volume, demonstrating the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input image is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration resamples the original anisotropic voxel spacing of [0.2910, 0.2910, 1.2500] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. 
+[example_vertebra.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_vertebra.m) resamples a medical image-based segementation of a human spine. Figure 1 depicts slices through the 3D spine volume, demonstrating the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input image is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration resamples the original anisotropic voxel spacing of [0.2910, 0.2910, 1.2500] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. Gap post-processing was not applied.
 
 ![spineDemo](paper/figure/spineDemo.svg)
 
 *Figure 1: Mesh-based upsampling demonstration with a segmented spine (subverse003) from the Verse2020 spine segmentation dataset [^1].*
 
-[example_AustinWoman_Kidney.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_AustinWoman_Kidney.m) upsamples a segmented medical image of a kidney and surrounding organs from the female Visible Human Project dataset [^2] with input parameters $\sigma = 0.4$ and isovalue = 0.4. This demonstration upsamples the original voxel spacing of [1, 1, 1] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing.
+[example_AustinWoman_Kidney.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_AustinWoman_Kidney.m) upsamples a segmented medical image of a kidney and surrounding organs from the female Visible Human Project dataset [^2] with input parameters $\sigma = 0.4$ and isovalue = 0.4. This demonstration upsamples the original voxel spacing of [1, 1, 1] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. Gap post-processing was applied.
 
 ![liverDemo](paper/figure/liverDemo.svg)
 
