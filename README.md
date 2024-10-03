@@ -42,7 +42,7 @@ k-Wave (http://www.k-wave.org/)
 
 [methodComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/methodComparsion.m) provides a comparsion of the mesh-based upsampling method against naive (nearest-neighbour and trilinear interpolation) upsampling methods.
 
-[normalizationomparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/normalizationComparsion.m) compares error metrics for evaluating the accuracy of the upsampled result using a high-resolution ground truth.
+[normalizationComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/normalizationComparsion.m) compares error metrics for evaluating the accuracy of the upsampled result using a high-resolution ground truth.
 
 [IsovalueVSVolume.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/IsovalueVSVolume.m) provides the variation of volume ratio against isovalue, which can be used by the user to select the isovalue based on the desired volume. 
 
