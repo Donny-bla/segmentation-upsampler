@@ -20,15 +20,15 @@ k-Wave (http://www.k-wave.org/)
 
 ## Examples
 
-[MultilabelExample.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/MultilabelExample.m) upsamples a code-generated complex shape and compares it to a high-resolution ground truth.
+[example_multilabel_testobject.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_multilabel_testobject.m) upsamples a code-generated complex shape and compares it to a high-resolution ground truth.
 
-[vertrbraExample.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/vertebraExample.m) upsamples a medical image-based segementation of a spine. Figure 1 demonstrates the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input image is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration involves upsampling at a scale of 0.8 with spacing at [0.2910, 0.2910, 1.2500]. 
+[example_vertebra.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_vertebra.m) upsamples a medical image-based segementation of a spine. Figure 1 demonstrates the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input image is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration resamples the original anisotropic voxel spacing of [0.2910, 0.2910, 1.2500] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. 
 
 ![spineDemo](paper/figure/spineDemo.svg)
 
 *Figure 1: Mesh-based upsampling demonstration with a segmented spine (subverse003) from the Verse2020 spine segmentation dataset [^1].*
 
-[AustinWomanKindeySliceExample.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/AustinWomanKindeySliceExample.m) is another example that upsamples a segmented medical image. Figure 2 illustrates another example of an upsampled multi-label medical image with input parameters $\sigma = 0.4$ and isovalue = 0.4, showcasing a liver obtained from the female Visible Human Project dataset [^2]. This demonstration also involves upsampling at a scale of 0.8 with spacing at [1, 1, 1].
+[example_AustinWoman_Kidney.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_AustinWoman_Kidney.m) is another example that upsamples a segmented medical image. Figure 2 illustrates another example of an upsampled multi-label medical image with input parameters $\sigma = 0.4$ and isovalue = 0.4, showcasing a liver obtained from the female Visible Human Project dataset [^2]. This demonstration upsamples the original voxel spacing of [1, 1, 1] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing..
 
 ![liverDemo](paper/figure/liverDemo.svg)
 
@@ -36,13 +36,13 @@ k-Wave (http://www.k-wave.org/)
 
 ## Test
 
-[MultilabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/MultilabelGridSearch.m) provides a method to find optimal parameter setting to upsample testing shapes through grid search. This code requires a high-resolution ground truth.
+[MultilabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/MultilabelGridSearch.m) provides a grid-search method to find optimal parameter settings for upsampling an object with a code-based high-resolution ground truth. 
 
-[methodComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/methodComparsion.m) provides a comparsion of the mesh-based upsampling method against naive upsampling methods.
+[methodComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/methodComparsion.m) provides a comparsion of the mesh-based upsampling method against naive (nearest-neighbour and trilinear interpolation) upsampling methods.
 
-[normalizationomparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/normalizationComparsion.m) compares error metrics for evaluating the accuracy of the upsampled result. Both tested error metrics requires a high-resolution ground truth.
+[normalizationomparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/normalizationComparsion.m) compares error metrics for evaluating the accuracy of the upsampled result using a high-resolution ground truth.
 
-[IsovalueVSVolume.m](https://github.com/ucl-bug/segmentation-upsampler/blob/refinedStructure/IsovalueVSVolume.m) provides the variation of volume ratio against isovalue. This can be referred to if the user want to select isovalue automatically.
+[IsovalueVSVolume.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/IsovalueVSVolume.m) provides the variation of volume ratio against isovalue, which can be used by the user to select the isovalue based on the desired volume. 
 
 
 ## References
