@@ -41,7 +41,7 @@ originalMatrix = shapes{1};
 sigma = 0.68;                 % Gaussian smoothing parameter
 Volume = 0;                   % Target volume (not applied in this case)
 isovalue = 0.513;             % Isovalue threshold for surface extraction
-dx = [0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95];  % Grid spacing for upsampling
+dx = 0.2:0.05:0.95;           % Grid spacing for upsampling
 
 % Initialize Python environment.
 pyenv;
@@ -108,29 +108,27 @@ for s = 1:3
     AllVolumegrade = [AllVolumegrade; Volumegrade];
 end
 
-%% PLOTTING RESULTS
-figure;
+%% Plotting Results
 
-% Plot Degree of Complexity (DoC) grades as a function of dx.
-subplot(1, 2, 1);
-hold on;
-plot(dx, AllDoCdxgrade, 'LineWidth', 2);
-hold off;
-set(gca, "FontSize", 14);
-title("Grade by Degree of Complexity", 'FontSize', 20);
-xlim([0.2, 0.95]);
-xlabel("dx", 'FontSize', 20);
-ylabel("Grade", 'FontSize', 20);
-legend("Mesh-Based", "Trinterp", "NearestN", 'FontSize', 18);
+figure('Position', [300 300 600 400])
+subplot(1,2,1)
+hold on
+plot(dx, AllDoCdxgrade(1,:), 'k+-');
+plot(dx, AllDoCdxgrade(2,:), ':s', 'color', (1/255) * [80 7 120]);
+plot(dx, AllDoCdxgrade(3,:), '--*', 'color', (1/255) * [52 198 198]);
+xlim([0.2 0.95])
+xlabel("Upscaling Factor [dx]"); 
+ylabel("Grade by Degree of Complexity"); 
+legend("MeshBased","Trinterp", "NearestN", 'location', 'southeast'); 
+box on; grid on;
 
-% Plot volume grades as a function of dx.
-subplot(1, 2, 2);
-hold on;
-plot(dx, AllVolumegrade, 'LineWidth', 2);
-hold off;
-set(gca, "FontSize", 14);
-title("Grade by Volume", 'FontSize', 20);
-xlim([0.2, 0.95]);
-xlabel("dx", 'FontSize', 20);
-ylabel("Grade", 'FontSize', 20);
-legend("Mesh-Based", "Trinterp", "NearestN", 'FontSize', 18);
+subplot(1,2,2)
+hold on
+plot(dx, AllVolumegrade(1,:), 'k+-');
+plot(dx, AllVolumegrade(2,:), ':s', 'color', (1/255) * [80 7 120]);
+plot(dx, AllVolumegrade(3,:), '--*', 'color', (1/255) * [52 198 198]);
+xlim([0.2 0.95])
+xlabel("Upsampling Factor [dx]")
+ylabel('Grade by Volume')
+legend("MeshBased","Trinterp", "NearestN", 'location', 'southeast')
+box on; grid on;
