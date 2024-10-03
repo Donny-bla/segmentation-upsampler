@@ -102,16 +102,14 @@ $$Diff = \Sigma(ref\neq out)\$$
 
 $$Grade\  by\  Volume = \frac{\Sigma(ref\neq out)}{\Sigma ref}\$$
 
-In these equations, $\Sigma ref\$ represents the volume of the high-resolution ground truth;
-
-The Grade by Volume is equivalent to the percentage of "correct" labels. The Grade by Shape relates to the complexity of the image and is independent of the reference image. These two normalization methods may lead to different conclusions when comparing different test objects. However, both metrics are based on $Diff$ and will give the same conclusion when testing a single object. The following sections will focus on developing an algorithm that minimizes these two test metrics.
+In these equations, $\Sigma ref\$ represents the volume of the high-resolution ground truth and the Grade by Volume is equivalent to the percentage of "correct" labels.
 
 ## Comparison against naive upsampling approach
-Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = XX, I = XX$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values. This figure illustrates the variation in error against the scale of upsampling for the same object. The variable dx is the reciprocal of the scale of upsampling, meaning that a smaller dx represents a larger scale of upsampling. While some algorithms may have an advantage in upsampling particular shapes, the 'complex' test object has convex components, concave components, edges of varying ‘sharpness’ and may serve as a generic test object for comparison across upsampling methods. 
+Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = 0.68, I = 0.513$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values. This figure illustrates the variation in error against the scale of upsampling for the same object. The variable dx is the reciprocal of the scale of upsampling, meaning that a smaller dx represents a larger scale of upsampling. While some algorithms may have an advantage in upsampling particular shapes, the 'complex' test object has convex components, concave components, edges of varying ‘sharpness’ and may serve as a generic test object for comparison across upsampling methods. 
 
 ![Comparison against other methods. Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.](figure/method_comparison.svg)
 
-*Figure 4: Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.*
+*Figure 4: Upsampling error evaluated via a) the grade by shape, and b) the grade by volume of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling, .*
 
 Figure 4 shows that the trilinear interpolation method has the highest error across the tested upsampling regime. The performance of our mesh-based method is slightly better than the nearest-neighbor method. The sudden improvement at $dx = 0.5$ may be related to index rounding. All three methods show a trend of decreasing error percentage as the scale of upsampling increases, especially when $dx$ reaches 0.5. This trend may result from the normalization by volume; the number of voxels in the volume increases faster than the number of voxels at the object interface that are challenging to upsample accurately, as the scale of upsampling increases. 
 
