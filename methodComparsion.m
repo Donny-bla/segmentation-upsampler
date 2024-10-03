@@ -9,7 +9,7 @@
 % DATE:
 %     4th September 2024
 % LAST UPDATE:
-%     4th September 2024
+%     3rd October 2024
 %
 % This script is part of the k-Wave Toolbox (http://www.k-wave.org).
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
