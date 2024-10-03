@@ -36,7 +36,9 @@ k-Wave (http://www.k-wave.org/)
 
 ## Test
 
-[MultilabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/MultilabelGridSearch.m) provides a grid-search method to find optimal parameter ($\sigma$, isovalue) settings for upsampling a code-based object, evaluated against a code-based high resolution ground truth. 
+[SinglelabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/SinglelabelGridSearch.m) provides a grid-search method to find optimal parameter ($\sigma$, isovalue) settings for upsampling a single-label code-based image. Mis-labelling errors are evaluated using a high-resolution code-based image.
+
+[MultilabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/MultilabelGridSearch.m) provides a grid-search method to find optimal parameter ($\sigma$, isovalue) settings for upsampling a multi-label code-based image. Errors resulting from gaps between labels and volume differences are evaluated using a high-resolution code-based image.
 
 [methodComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/methodComparsion.m) provides a comparsion of the mesh-based upsampling method against naive (nearest-neighbour and trilinear interpolation) upsampling methods.
 
