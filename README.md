@@ -1,6 +1,6 @@
 # Segmentation Upsampler
 
-This is a Python-based software for upsampling 3-dimensional segmented medical images using a mesh-based method. This method may be useful for reducing staircasing artifacts and increasing accuracy in medical image-derived ultrasound simulations.
+This is a Python-based software for upsampling 3-dimensional segmented medical images using a mesh-based method. This method may be useful for reducing staircasing artifacts and increasing accuracy in medical image-derived ultrasound simulations, among other applications requiring accurate segmentation upsampling.
 
 ## Installation
 
