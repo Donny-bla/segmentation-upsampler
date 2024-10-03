@@ -109,7 +109,7 @@ The Grade by Volume is equivalent to the percentage of "correct" labels. The Gra
 ## Comparison against naive upsampling approach
 Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = XX, I = XX$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values. This figure illustrates the variation in error against the scale of upsampling for the same object. The variable dx is the reciprocal of the scale of upsampling, meaning that a smaller dx represents a larger scale of upsampling. While some algorithms may have an advantage in upsampling particular shapes, the 'complex' test object has convex components, concave components, edges of varying ‘sharpness’ and may serve as a generic test object for comparison across upsampling methods. 
 
-![Comparison against other methods. Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.](figure/method_comparsion.svg)
+![Comparison against other methods. Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.](figure/method_comparison.svg)
 
 *Figure 4: Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.*
 
