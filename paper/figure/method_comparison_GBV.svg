@@ -21,9 +21,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.56190476"
-     inkscape:cx="279.40678"
-     inkscape:cy="210"
+     inkscape:zoom="0.79465333"
+     inkscape:cx="279.3671"
+     inkscape:cy="449.2525"
      inkscape:window-width="1920"
      inkscape:window-height="1137"
      inkscape:window-x="-8"
@@ -751,7 +751,7 @@
          id="line3753" />
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,748)"
+       transform="matrix(2,0,0,2,135.3334,746)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3759">
       <text
@@ -762,7 +762,7 @@
          id="text3757">0</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,633.6666)"
+       transform="matrix(2,0,0,2,169.3334,631.6666)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3763">
       <text
@@ -770,10 +770,10 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3761">0.05</text>
+         id="text3761">5</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,519.3334)"
+       transform="matrix(2,0,0,2,137.3334,517.73362)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3767">
       <text
@@ -781,10 +781,10 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3765">0.1</text>
+         id="text3765">10</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,405)"
+       transform="matrix(2,0,0,2,153.3334,404.00006)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3771">
       <text
@@ -792,10 +792,10 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3769">0.15</text>
+         id="text3769">15</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,290.6666)"
+       transform="matrix(2,0,0,2,137.3334,289.06662)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3775">
       <text
@@ -803,10 +803,10 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3773">0.2</text>
+         id="text3773">20</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,176.3334)"
+       transform="matrix(2,0,0,2,153.3334,174.3334)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3779">
       <text
@@ -814,10 +814,10 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3777">0.25</text>
+         id="text3777">25</text>
     </g>
     <g
-       transform="matrix(2,0,0,2,135.3334,62)"
+       transform="matrix(2,0,0,2,139.3334,60)"
        style="font-size:13.3333px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3783">
       <text
@@ -825,18 +825,18 @@
          xml:space="preserve"
          y="5.5"
          style="stroke:none"
-         id="text3781">0.3</text>
+         id="text3781">30</text>
     </g>
     <g
        transform="matrix(0,-2,2,0,75.3334,404.9996)"
        style="font-size:14.6667px;color-interpolation:linearRGB;fill:#262626;stroke:#262626;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
        id="g3787">
       <text
-         x="-57.5"
+         x="-76.5"
          xml:space="preserve"
          y="-4"
          style="stroke:none"
-         id="text3785">Grade by Volume</text>
+         id="text3785">Percentage Error [%]</text>
     </g>
     <g
        style="color-interpolation:linearRGB;stroke-width:0.6667;stroke-linecap:butt;stroke-linejoin:round;color-rendering:optimizeQuality;image-rendering:optimizeQuality;text-rendering:geometricPrecision"
