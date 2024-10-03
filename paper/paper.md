@@ -33,9 +33,7 @@ bibliography: paper.bib
 
 Recent advances in ultrasound therapy are supported by improved simulation methods. Simulation methods can enhance diagnostic, therapeutic, and monitoring capabilities. A challenge in medical ultrasound simulation is the insufficient resolution of the medical images (usually MRI and CT scans) used to generate patient-specific simulation domains. Accurate patient-specific ultrasound simulation typically requires medical image upsampling, but naive upsampling methods can introduce artifacts and inaccuracies that corrupt simulation accuracy.
 
-To address this, a new mesh-based algorithm is developed for upsampling 3-dimensional segmented medical images. The algorithm smooths the image, extracts an isosurface, generates a triangulated mesh, and rasterizes it to the required resolution. This method reduces staircasing and other upsampling artifacts, compared to traditional upsampling methods.
-
-The algorithm is demonstrated using a complex test object and medical images of a spine and kidney. This approach may enhance ultrasound simulation accuracy in personalized medicine.
+To address this, a new mesh-based algorithm is developed for upsampling 3-dimensional segmented medical images. The algorithm smooths the image, extracts an isosurface, generates a triangulated mesh, and rasterizes it to the required resolution. This method reduces staircasing and other upsampling artifacts, compared to traditional upsampling methods. This toolbox includes several examples including the upsampling of a complex code-based test object, and multi-labelled segmentations of a spine and a kidney with surrouding organs. This mesh-based upsampling approach may enhance ultrasound simulation accuracy in personalized medicine.
 
 # Statement of need
 
@@ -45,7 +43,7 @@ One limitation in patient-specific ultrasound simulation is medical image resolu
 
 An 'upsampling' process is required to bridge the gap between image resolution and the required simulation resolution. However, naive interpolation-based upsampling methods, such as nearest neighbour or linear interpolation, may lead to 'staircasing' effects at a detriment to simulation accuracy [^6]. Poor image segmentation may also lead to a staircased simulation domain and inaccurate simulation results.
 
-The challenge, therefore, lies in developing an upsampling method that can increase the resolution of segmented medical images smoothly, without introducing staircasing effects or other artifacts. The upsampling method should also be able to partially smooth staircasing artifacts introduced by poor image segmentation.
+The challenge lies in developing an upsampling method that can increase the resolution of segmented medical images smoothly, without introducing staircasing effects or other artifacts. The upsampling method should also be able to partially smooth staircasing artifacts introduced by poor image segmentation.
 
 # Algorithm design
 ## Overview
@@ -54,9 +52,9 @@ The challenge, therefore, lies in developing an upsampling method that can incre
 
 *Figure 1: Algorithm workflow*
 
-This section introduces an algorithm that utilizes a mesh-based method for the upsampling process. The workflow of the algorithm is depicted in Figure 1. An image with a single label can be equated to a binary image. To begin, our algorithm converts the binary image to a floaing point array, then smooths the image using a Gaussian smoothing kernel. Smoothing is implemented on the basis that smooth surfaces are a better approximation of the natural shape of a biological object. Next, an isosurface is extracted from the smoothed image, generated from points within the volume with a constant value. Subsequently, the algorithm generates a triangulated free-space surface mesh isosurface. A hole-filling function is implemented to improve the mesh quality. Finally, the free-space mesh is rasterized to the output grid with the required discretization for accurate ultrasound simulation.
+This section introduces an algorithm that utilizes a mesh-based method for the upsampling process. The workflow of the algorithm is depicted in Figure 1. An image with a single label can be equated to a binary image. To begin, the algorithm converts the binary image to a floaing point array, then smooths the image using a Gaussian smoothing kernel. Smoothing is implemented on the basis that smooth surfaces are a better approximation of the natural shape of a biological object. Next, an isosurface is extracted from the smoothed image, generated from points within the volume with a constant value. Subsequently, the algorithm generates a triangulated free-space surface mesh isosurface. A hole-filling function is implemented to improve the mesh quality. Finally, the free-space mesh is rasterized to the output grid with the required discretization for accurate ultrasound simulation.
 
-The workflow described above applies to the upsampling of a binary image, which contains a single label. The algorithm is repeated for each label in a segmented medical image with multiple labels. However, multi-label upsampling introduces a new challenge: gaps with missing labels and overlapping segmentations at the boundaries between different labels. The algorithm handles overlaps by sorting the input labels by volume. The algorithm then starts the upsampling process with the largest volume, then repeatedly overwrites the output with the following smaller volumes. Gaps with missing labels are addressed with the careful selection of the isovalue to ensure that the volume enclosed by the isosurface is slightly larger than the original volume. The impact of isovalue selection is displayed in Figure 2. The toolbox also includes an optional hole-filling post-processing step that enables users to choose lower isovalues and close gaps between labels in a multi-label image. The post-processing checks the value of an empty voxel in each of the smoothed label matrices and the empty voxel is filled with the value of the highest smoothed label matrix. 
+The workflow described above applies to the upsampling of a binary image. The algorithm is repeated for each label in a segmented medical image with multiple labels. However, multi-label upsampling introduces a new challenge: gaps with missing labels and overlapping segmentations at the boundaries between different labels. The algorithm handles overlaps by sorting the input labels by volume. The algorithm then starts the upsampling process with the largest volume, then repeatedly overwrites the output with the following smaller volumes. Gaps with missing labels are addressed with the careful selection of the isovalue to ensure that the volume enclosed by the isosurface is slightly larger than the original volume. The impact of isovalue selection is displayed in Figure 2. The toolbox also includes an optional hole-filling post-processing step that enables users to choose lower isovalues and close gaps between labels in a multi-label image. The post-processing checks the value of an empty voxel in each of the smoothed label matrices and the empty voxel is filled with the value of the highest smoothed label matrix. 
 
 ![Overlapping Gaussian](figure/overlapping_Gaussian.svg)
 
@@ -68,7 +66,7 @@ The algorithm accepts and returns the following variables:
 **Input:**
 
 originalImage: low resolution input image (binary or integer 3D array for images with two or more labels, respectively)
-spacing: spacing of the original image ($describe units and array type$)
+spacing: spacing of the original image (3*1 array)
 $dx$: scale of upsampling (3*1 array for medical image, for instance [0.5, 0.5, 1] will upsample the image by 2 along x and y without upsampling in z.)
 $\sigma$: the standard deviation for the Gaussian smoothing kernel (scalar float, recommended range: 0 - 1)
 $I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.5)
@@ -82,24 +80,22 @@ The choice of $\sigma$ and $I$ parameters may impact the quality of the upsample
 # Application
 ## Test Objects
 
-We used code-defined test objects to identify optimal $\sigma$ and $I$ values. The primary test object is a complex shape, as shown in Figure 3, and is used in all following numerical experiments unless otherwise specified.
+We used a code-defined test object to identify optimal $\sigma$ and $I$ values. The primary test object is the complex shape shown in Figure 3. The complex test object is generated by subtracting smaller spheres from a larger sphere. Spheres are generated using the $makeSphere$ function from the k-Wave[^9] acoustic simulation toolbox. The base sphere has a radius of $r$ and its centre is at $(0,0,0)$. Six smaller spheres with radii of $0.75r, 0.67r, 0.5r, 0.33r, 0.25r, 0.2r$ are subtracted at $(\pm r,0,0), (0,\pm r, 0), (0,0,\pm r)$ respectively. The radius $r$ was set to 20 voxels. The spherical subtractions from the base sphere generate sharp edges, similar to certain bony anatomical features that need to be preserved during upsampling for simulation accuracy. Some algorithms may have an advantage in upsampling particular shapes. To counter this, the 'complex' test object has convex components, concave components, and edges of varying ‘sharpness’, with the aim of representing a broad range of possible biological features. 
 
 ![‘Complex’ Test Object: a) three-dimensional isometric projection, b) top view, c) front view, and d) side view of the complex test object.](figure/complex_object_combined.svg)
 
 *Figure 3: 'Complex' Test Object: three-dimensional isometric projection, b) top view, c) front view, and d) side view of the complex test object.*
 
-The complex test object is generated by subtracting smaller spheres from a larger sphere. Spheres are generated using the $makeSphere$ function from the k-Wave[^9] acoustic simulation toolbox. The base sphere has a radius of $r$ and its centre is at $(0,0,0)$. Six smaller spheres with radii of $0.75r, 0.67r, 0.5r, 0.33r, 0.25r, 0.2r$ are subtracted at $(\pm r,0,0), (0,\pm r, 0), (0,0,\pm r)$ respectively. The radius $r$ was set to 20 voxels. The spherical subtractions from the base sphere generate sharp edges, similar to certain bony anatomical features that need to be preserved during upsampling for simulation accuracy.
-
 ## Upsampling Error
 
-We evaluate the upsampling algorithm accuracy with a given $(\sigma, isovalue)$ parameter pair by comparing the upsampled image with the high-resolution ground truth and by calculating the number of 'incorrect' labels. A Boolean difference matrix is obtained from the upsampled result ($out$) and the high-resolution reference image ($ref$), and this error metric is then normalised by the volume of the high-resolutioni ground truth.
+We evaluate the upsampling algorithm accuracy with a given $(\sigma, isovalue)$ parameter pair by comparing the upsampled image with the high-resolution ground truth and by calculating the number of 'incorrect' labels. A Boolean difference matrix is obtained from the upsampled result ($out$) and the high-resolution reference image ($ref$), and this error metric is then normalised by the volume of the high-resolution ground truth.
 
 $$Percentage Error = 100 \times \frac{\Sigma(ref\neq out)}{\Sigma ref}\$$
 
 ## Comparison against naive upsampling approach
-Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = 0.68, I = 0.513$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values. This figure illustrates the variation in error against the scale of upsampling for the same object. The variable dx is the reciprocal of the scale of upsampling, meaning that a smaller dx represents a larger scale of upsampling. While some algorithms may have an advantage in upsampling particular shapes, the 'complex' test object has convex components, concave components, edges of varying ‘sharpness’ and may serve as a generic test object for comparison across upsampling methods. 
+Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = 0.68, I = 0.513$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values.
 
-![Comparison against other methods. Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.](figure/method_comparison.svg)
+![Comparison against other methods. Upsampling accuracy comparison of the mesh-based upsampling algorithm against trilinear and nearest-neighbour upsampling.](figure/method_comparison_GBH.svg)
 
 *Figure 4: Percentage upsampling error for the mesh-based upsampling algorithm versus two naive upsampling algorithms: trilinear and nearest-neighbour upsampling. The errors are evaluated across a range of upsampling scales.*
 
