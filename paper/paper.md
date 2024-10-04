@@ -50,7 +50,7 @@ The challenge lies in developing an upsampling method that can increase the reso
 
 ![Workflow diagram](figure/workflow.svg)
 
-*Figure 1: Algorithm workflow*
+*Figure 1: The input 3D image is binarized, then smoothed with a Gaussian smoothing kernel to create a 3D floating point array. A mesh is then generated and improved using python VTK, before being rasterized to the target resolution to create the upsampled image. *
 
 This section introduces an algorithm that utilizes a mesh-based method for the upsampling process. The workflow of the algorithm is depicted in Figure 1. An image with a single label can be equated to a binary image. To begin, the algorithm converts the binary image to a floaing point array, then smooths the image using a Gaussian smoothing kernel. Smoothing is implemented on the basis that smooth surfaces are a better approximation of the natural shape of a biological object. Next, an isosurface is extracted from the smoothed image, generated from points within the volume with a constant value. Subsequently, the algorithm generates a triangulated free-space surface mesh isosurface. A hole-filling function is implemented to improve the mesh quality. Finally, the free-space mesh is rasterized to the output grid with the required discretization for accurate ultrasound simulation.
 
@@ -58,7 +58,7 @@ The workflow described above applies to the upsampling of a binary image. The al
 
 ![Overlapping Gaussian](figure/overlapping_Gaussian.svg)
 
-*Figure 2: Effect of isovalue on overlapping voxels*
+*Figure 2: Multi-label upsampling requires a balance between Gaussian smoothing level and isovalue selection in order to accurately create the mesh interface. A high isovalue e.g., a) 0.6 leaves gaps between labels after mesh creation. b) An isovalue of 0.5 is optimal in 1D but may leave gaps in 3D. c) A low isovalue (e.g., 0.4) reduces gaps but will result in biased label 1 or 2 volumes. *
 
 The algorithm accepts and returns the following variables:
 
@@ -86,7 +86,7 @@ We used a code-defined test object to identify optimal $\sigma$ and $I$ values. 
 
 We evaluate the upsampling algorithm accuracy with a given $(\sigma, isovalue)$ parameter pair by comparing the upsampled image ($out$) with the high-resolution ground truth ($ref$). A Boolean difference matrix of the two images is used to obtain the number of erroneous labels. The percentage error is then obtained by normalising the number of erroneous labels by the volume of the high-resolution ground truth.
 
-$$Percentage Error = 100 \times \frac{\Sigma(ref\neq out)}{\Sigma ref}\$$
+$$%Error = 100 \times \frac{\Sigma(ref\neq out)}{\Sigma ref}\$$
 
 Figure 4 presents a comparison of the results obtained from two commonly-used upsampling methods (nearest-neighbor interpolation and trilinear interpolation) and our mesh-based upsampling method applied to the 'complex' test object. Our mesh-based upsampling algorithm (with $\sigma = 0.68, I = 0.513$) outperforms nearest-neighbor interpolation and trilinear interpolation across the range of tested upsampling values.
 
