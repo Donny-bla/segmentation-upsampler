@@ -18,7 +18,7 @@
 % LAST UPDATE:
 %     26th August 2024
 %
-% This script is part of the k-Wave Toolbox (http://www.k-wave.org).
+% This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
 %
 % This script is distributed under the terms of the GNU Lesser General 
