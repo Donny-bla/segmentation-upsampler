@@ -11,14 +11,14 @@
 % LAST UPDATE:
 %     4th September 2024
 %
-% This script is part of the k-Wave Toolbox (http://www.k-wave.org).
+% This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
 %
 % This script is distributed under the terms of the GNU Lesser General 
 % Public License as published by the Free Software Foundation, either 
 % version 3 of the License, or (at your option) any later version.
-% See <http://www.gnu.org/licenses/>.
 
+% 
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 % Define the paths to the required code directory.
 folderPath = pwd;
