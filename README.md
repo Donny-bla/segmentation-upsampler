@@ -33,8 +33,6 @@ $I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.
 
 newImage: high resolution output with defined spacing
 
-The choice of $\sigma$ and $I$ parameters may impact the quality of the upsampled image. The optimal parameters depend on the geometry of the segmented object. Object-specific $(\sigma, I)$ optimisation may be needed for complex objects that have both sharp edges and smooth or curved surfaces. 
-
 ## Examples
 
 [example_multilabel_testobject.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_multilabel_testobject.m) upsamples a code-generated complex shape and compares it to a high-resolution code-generated ground truth.
