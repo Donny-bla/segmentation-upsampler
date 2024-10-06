@@ -1,5 +1,5 @@
 ---
-title: 'Resampling segmented medical image data for treatment planning in ultrasound therapy'
+title: 'pySegmentationUpsampler: Resampling segmented medical image data for treatment planning in ultrasound therapy'
 tags:
   - Python
   - Image upsampling
@@ -59,22 +59,6 @@ The workflow described above applies to the upsampling of a binary image. The al
 ![Overlapping Gaussian](figure/overlapping_Gaussian.svg)
 
 *Figure 2: Multi-label upsampling requires a balance between Gaussian smoothing level and isovalue selection in order to accurately create the mesh interface. A high isovalue e.g., a) 0.6 leaves gaps between labels after mesh creation. b) An isovalue of 0.5 is optimal in 1D but may leave gaps in 3D. c) A low isovalue (e.g., 0.4) reduces gaps but will result in biased label 1 or 2 volumes.*
-
-The algorithm accepts and returns the following variables:
-
-**Input:**
-
-originalImage: low resolution input image (binary 3D array - two labels, integer 3D array - more than two labels) \
-spacing: spacing of the original image (1 x 3 floating point array) \
-$dx$: scale of upsampling (scalar float for isotropic upsampling, 1 x 3 floating point array for an anisotropic medical image) \
-$\sigma$: the standard deviation for the Gaussian smoothing kernel (scalar float, recommended range: 0 - 1) \
-$I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.5) 
-
-**Output:**
-
-newImage: high resolution output with defined spacing
-
-The choice of $\sigma$ and $I$ parameters may impact the quality of the upsampled image. The optimal parameters depend on the geometry of the segmented object. Object-specific $(\sigma, I)$ optimisation may be needed for complex objects that have both sharp edges and smooth or curved surfaces. 
 
 # Application
 
