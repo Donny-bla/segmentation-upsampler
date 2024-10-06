@@ -18,6 +18,23 @@ pip install numpy scipy vtk numba
 MATLAB package:\
 k-Wave (http://www.k-wave.org/)
 
+## I/O
+The algorithm accepts and returns the following variables:
+
+**Input:**
+
+originalImage: low resolution input image (binary 3D array - two labels, integer 3D array - more than two labels) \
+spacing: spacing of the original image (1 x 3 floating point array) \
+$dx$: scale of upsampling (scalar float for isotropic upsampling, 1 x 3 floating point array for an anisotropic medical image) \
+$\sigma$: the standard deviation for the Gaussian smoothing kernel (scalar float, recommended range: 0 - 1) \
+$I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.5) 
+
+**Output:**
+
+newImage: high resolution output with defined spacing
+
+The choice of $\sigma$ and $I$ parameters may impact the quality of the upsampled image. The optimal parameters depend on the geometry of the segmented object. Object-specific $(\sigma, I)$ optimisation may be needed for complex objects that have both sharp edges and smooth or curved surfaces. 
+
 ## Examples
 
 [example_multilabel_testobject.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_multilabel_testobject.m) upsamples a code-generated complex shape and compares it to a high-resolution code-generated ground truth.
