@@ -42,9 +42,10 @@ referenceShapes = cell(1, 4);
 Volume = 0;                  
 sigma = 0.6;                 
 isovalue = 0.44;             
-dx = 0.2:0.1:1;              
-pyenv;
+dx = 0.2:0.2:1;
+% dx = 0.2:0.1:1; scale set for denser plot
 
+pyenv;
 %% INITIALIZE ARRAYS FOR STORING RESULTS
 AllVolumegrade = [];         
 AllDoCdxgrade = [];          
@@ -72,7 +73,7 @@ for s = 1:4
                               floor(45/ii)], [0, 0, 0]);
         referenceMatrix = referenceShapes{s};
         
-        disp(ii);  % Display the current scale
+        disp("processing scale = " + string(ii))
         
         newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
                               "newMatrix", ...
