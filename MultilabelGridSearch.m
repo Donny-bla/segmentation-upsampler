@@ -38,8 +38,12 @@ originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 dx = 0.3;                     % Grid spacing for upsampling
 
 % Define ranges for sigma (smoothing factor) and isovalue (threshold)
-sigma = 0.6:0.025:1.1;        % Range of sigma values
-isovalue = 0.44:0.0035:0.51;  % Range of isovalue values
+sigma = 0:0.5:2;              % Range of sigma values
+isovalue = 0.3:0.1:0.7;      % Range of isovalue values
+
+% Paramter set for dense gird scan
+% sigma = 0.6:0.025:1.1;        % Range of sigma values
+% isovalue = 0.44:0.0035:0.51;  % Range of isovalue values
 
 %% CREATE REFERENCE DATA
 % Parameters for generating reference shapes
