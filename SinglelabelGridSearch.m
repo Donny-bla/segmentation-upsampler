@@ -40,9 +40,12 @@ originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 dx = 0.25;                    % Grid spacing for upsampling
 
 % Define ranges for sigma (smoothing factor) and isovalue (threshold)
-sigma = 0:0.2:2;              % Range of sigma values
-isovalue = 0.4:0.02:0.6;      % Range of isovalue values
+sigma = 0:0.5:2;              % Range of sigma values
+isovalue = 0.3:0.1:0.7;      % Range of isovalue values
 
+% Paramter set for sparse gird scan
+% sigma = 0:0.2:2;              % Range of sigma values
+% isovalue = 0.4:0.02:0.6;      % Range of isovalue values
 %% CREATE REFERENCE DATA
 % Define parameters for reference data rasterization
 Nref = floor(N / dx);         % Grid size for reference data
