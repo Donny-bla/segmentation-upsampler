@@ -32,20 +32,17 @@ addpath(codeDirect)
 % Low-resolution grid parameters.
 N = 60;                      % Grid size
 radius = round(N / 3);        % Radius of the shape
-shapes = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
-
-% Use the first shape as the original matrix.
-originalMatrix = shapes{1};
+originalMatrix = makeShapes("Complex", [radius], [N, N, N], [0, 0, 0]);
 
 %% UPSAMPLING PARAMETERS
 sigma = 0.68;                 % Gaussian smoothing parameter
 Volume = 0;                   % Target volume (not applied in this case)
 isovalue = 0.513;             % Isovalue threshold for surface extraction
-dx = 0.2:0.05:0.95;           % Grid spacing for upsampling
+dx = [0.3 0.5 0.7 0.9];           % Grid spacing for upsampling
 
-% Initialize Python environment.
+%dx = 0.2:0.05:0.95;           % scale applied in thesis plotting
+
 pyenv;
-
 %% INITIALIZE ARRAYS FOR STORING GRADES
 AllDoCgrade = [];             % Array to store DoC grades.
 AllVolumegrade = [];          % Array to store volume grades.
@@ -65,6 +62,7 @@ for s = 1:3
 
     % Loop through each grid spacing (dx) value.
     for ii = dx
+        disp("processing scale = " + string(ii))
         % Create reference data.
         Nref = floor(double(N / ii));
         radiusRef = floor(radius / ii);
