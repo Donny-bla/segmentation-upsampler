@@ -37,11 +37,11 @@ originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 %% UPSAMPLE SETTINGS
 dx = 0.3;                     % Grid spacing for upsampling
 
-% Define ranges for sigma (smoothing factor) and isovalue (threshold)
+% Define sparse ranges for sigma (smoothing factor) and isovalue (threshold)
 sigma = 0:0.5:2;              % Range of sigma values
 isovalue = 0.3:0.1:0.7;      % Range of isovalue values
 
-% Paramter set for dense gird scan
+% Paramter set for dense grid scan
 % sigma = 0.6:0.025:1.1;        % Range of sigma values
 % isovalue = 0.44:0.0035:0.51;  % Range of isovalue values
 
@@ -115,7 +115,7 @@ contour(isovalue, sigma, AllDiff, [0 0.04], 'LineWidth', 2, ...
         'Color', 'blue', 'LineStyle', '--');   % Contour for volume grade 0.04
 hold off;
 set(gca, 'FontSize', 14);
-title("Multi-label Dense Scan of Sigma and Isovalue", 'FontSize', 20);
+title("Multi-label Sparse Scan of Sigma and Isovalue", 'FontSize', 20);
 xlabel("Isovalue", 'FontSize', 20);
 ylabel("Sigma", 'FontSize', 20);
 legend("500 Gaps", "Volume Grade 0.04", 'FontSize', 14);
@@ -132,7 +132,7 @@ contour(isovalue, sigma, AllDiff, [0 0.04], 'LineWidth', 2, ...
         'Color', 'blue', 'LineStyle', '--');  % Contour for volume grade 0.04
 hold off;
 set(gca, 'FontSize', 14);
-title("Multi-label Dense Scan of Sigma and Isovalue", 'FontSize', 20);
+title("Multi-label Sparse Scan of Sigma and Isovalue", 'FontSize', 20);
 xlabel("Isovalue", 'FontSize', 20);
 ylabel("Sigma", 'FontSize', 20);
 legend("0.04", 'FontSize', 14);
