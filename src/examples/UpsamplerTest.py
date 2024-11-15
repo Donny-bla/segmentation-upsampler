@@ -1,4 +1,4 @@
-from src.SegmentationUpsampler.UpsampleMultiLabels import upsample
+from SegmentationUpsampler import UpsampleMultiLabels
 import numpy as np
 import unittest
 import os
@@ -15,6 +15,7 @@ class TestUpsampleFunction(unittest.TestCase):
         self.iso = 0.4
 
     def testNBTrueFillFalse(self):
+        print("Running testcase: NBTrueFillFalse")
         originalMatrix = np.load(os.path.join(self.data_dir, 
                                   "multilabelTestShape.npy"))
         outputMatrix = np.load(os.path.join(self.data_dir, 
@@ -22,14 +23,16 @@ class TestUpsampleFunction(unittest.TestCase):
         fillGaps = False
         NB = True
 
-        newMatrix = upsample(originalMatrix, self.sigma, 
+        newMatrix = UpsampleMultiLabels.upsample(originalMatrix, self.sigma, 
                              self.targetVolume, self.scale, 
                              self.spacing, self.iso, fillGaps, NB)
 
         np.testing.assert_array_equal(newMatrix, outputMatrix, 
             "test not passed with NB speedup and no gap filling")
-
+        print("Success: testNBTrueFillFalse")
+        
     def testNBFalseFillFalse(self):
+        print("Running testcase: NBFalseFillFalse")
         originalMatrix = np.load(os.path.join(self.data_dir, 
                                   "multilabelTestShape.npy"))
         outputMatrix = np.load(os.path.join(self.data_dir, 
@@ -37,14 +40,16 @@ class TestUpsampleFunction(unittest.TestCase):
         fillGaps = False
         NB = False
 
-        newMatrix = upsample(originalMatrix, self.sigma, 
+        newMatrix = UpsampleMultiLabels.upsample(originalMatrix, self.sigma, 
                              self.targetVolume, self.scale, 
                              self.spacing, self.iso, fillGaps, NB)
 
         np.testing.assert_array_equal(newMatrix, outputMatrix, 
             "test not passed with no NB speedup and no gap filling")
+        print("Success: testNBFalseFillFalse")
 
     def testNBFalseFillTrue(self):
+        print("Running testcase: NBFalseFillTrue")
         originalMatrix = np.load(os.path.join(self.data_dir, 
                                   "multilabelTestShape.npy"))
         outputMatrix = np.load(os.path.join(self.data_dir, 
@@ -52,14 +57,16 @@ class TestUpsampleFunction(unittest.TestCase):
         fillGaps = True
         NB = False
 
-        newMatrix = upsample(originalMatrix, self.sigma, 
+        newMatrix = UpsampleMultiLabels.upsample(originalMatrix, self.sigma, 
                              self.targetVolume, self.scale, 
                              self.spacing, self.iso, fillGaps, NB)
 
         np.testing.assert_array_equal(newMatrix, outputMatrix, 
             "test not passed with no NB speedup and gap filling")
+        print("Success: testNBFalseFillTrue")
 
     def testNBTrueFillTrue(self):
+        print("Running testcase: NBTrueFillTrue")
         originalMatrix = np.load(os.path.join(self.data_dir, 
                                   "multilabelTestShape.npy"))
         outputMatrix = np.load(os.path.join(self.data_dir, 
@@ -67,12 +74,13 @@ class TestUpsampleFunction(unittest.TestCase):
         fillGaps = True
         NB = True
 
-        newMatrix = upsample(originalMatrix, self.sigma, 
+        newMatrix = UpsampleMultiLabels.upsample(originalMatrix, self.sigma, 
                              self.targetVolume, self.scale, 
                              self.spacing, self.iso, fillGaps, NB)
 
         np.testing.assert_array_equal(newMatrix, outputMatrix, 
             "test not passed with NB speedup and gap filling")
+        print("Success: testNBTrueFillTrue")
 
 if __name__ == '__main__':
     unittest.main()
