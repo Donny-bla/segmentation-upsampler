@@ -16,7 +16,7 @@
 % DATE:
 %     26th August 2024
 % LAST UPDATE:
-%     26th August 2024
+%     11th November 2024
 %
 % This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
@@ -29,7 +29,8 @@
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 % Define the paths to the required code and data directories.
 folderPath = pwd;
-codeDirect = fileparts(folderPath) + "/SegmentationUpsampler";
+codeDirect = folderPath + "/TestSupportingFunction";
+pythonFunction = folderPath + "/runPythonFunction.py";
 dataDirect = fileparts(folderPath) + "/data";
 addpath(codeDirect)
 
@@ -55,7 +56,7 @@ originalMatrix = paddMatrix;
 % performed by invoking a Python script that applies a series of 
 % transformations to the 3D data.
 pyenv;
-newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
+newMatrix = pyrunfile(pythonFunction, ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
                       sigma = sigma, ...
