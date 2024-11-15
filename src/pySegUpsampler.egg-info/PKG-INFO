@@ -1,0 +1,85 @@
+Metadata-Version: 2.1
+Name: pySegUpsampler
+Version: 0.0.4
+Summary: A python package that upsample segmentated medical image
+Author-email: Liangpu Liu <zcemll0@ucl.ac.uk>, Rui Xu <rui.xu@ucl.ac.uk>
+Project-URL: Homepage, https://github.com/Donny-bla/segmentation-upsampler/tree/main
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: numpy>=1.26.3
+Requires-Dist: scipy>=1.12.0
+Requires-Dist: vtk>=9.3.0
+Requires-Dist: numba>=0.59.1
+
+# Segmentation Upsampler
+
+This is a Python-based software for upsampling 3-dimensional segmented medical images using a mesh-based method. This method may be useful for reducing staircasing artifacts and increasing accuracy in medical image-derived ultrasound simulations, among other applications requiring accurate segmentation upsampling.
+
+## Installation
+
+*The software is Python-based and MATLAB is used to generate sample shapes and run tests.
+
+The software was developed in following environment:\
+Python version 3.9\
+MATLAB R2023b\
+Please check the compatibility of lateral Python versions using this link: https://www.mathworks.com/support/requirements/python-compatibility.html.
+
+
+Python package Installation:\
+pip install numpy scipy vtk numba
+
+MATLAB package:\
+k-Wave (http://www.k-wave.org/)
+
+## I/O
+The algorithm accepts and returns the following variables:
+
+**Input:**
+
+originalImage: low resolution input image (binary 3D array - two labels, integer 3D array - more than two labels) \
+spacing: spacing of the original image (1 x 3 floating point array) \
+$dx$: scale of upsampling (scalar float for isotropic upsampling, 1 x 3 floating point array for an anisotropic medical image) \
+$\sigma$: the standard deviation for the Gaussian smoothing kernel (scalar float, recommended range: 0 - 1) \
+$I$: isovalue for isosurface extraction (scalar float, recommand range: 0.4 - 0.5) 
+
+**Output:**
+
+newImage: high resolution output with defined spacing
+
+## Examples
+
+[example_multilabel_testobject.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_multilabel_testobject.m) upsamples a code-generated complex shape and compares it to a high-resolution code-generated ground truth.
+
+[example_vertebra.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_vertebra.m) resamples a medical image-based segementation of a human spine. Figure 1 depicts slices through the 3D spine volume, demonstrating the upsampling of a multi-label spine segmentation with input parameters $\sigma = 0.7$ and isovalue = 0.4. The input image is sourced from Liebl $et$ $al$. 2021 [^1]. This demonstration resamples the original anisotropic voxel spacing of [0.2910, 0.2910, 1.2500] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. Gap post-processing was not applied.
+
+![spineDemo](paper/figure/spineDemo.svg)
+
+*Figure 1: Mesh-based upsampling demonstration with a segmented spine (subverse003) from the Verse2020 spine segmentation dataset [^1].*
+
+[example_AustinWoman_Kidney.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/example_AustinWoman_Kidney.m) upsamples a segmented medical image of a kidney and surrounding organs from the female Visible Human Project dataset [^2] with input parameters $\sigma = 0.4$ and isovalue = 0.4. This demonstration upsamples the original voxel spacing of [1, 1, 1] millimetres to an isotropic [0.8, 0.8, 0.8] millimetre voxel spacing. Gap post-processing was applied.
+
+![liverDemo](paper/figure/liverDemo.svg)
+
+*Figure 2: Mesh-based upsampling demonstration with a kidney and surrounding organs from the female Visible Human Project dataset [^2].*
+
+## Test
+
+[SinglelabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/SinglelabelGridSearch.m) provides a grid-search method to find optimal parameter ($\sigma$, isovalue) settings for upsampling a single-label code-based image. Mis-labelling errors are evaluated using a high-resolution code-based image.
+
+[MultilabelGridSearch.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/MultilabelGridSearch.m) provides a grid-search method to find optimal parameter ($\sigma$, isovalue) settings for upsampling a multi-label code-based image. Errors resulting from gaps between labels and volume differences are evaluated using a high-resolution code-based image.
+
+[methodComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/methodComparsion.m) provides a comparsion of the mesh-based upsampling method against naive (nearest-neighbour and trilinear interpolation) upsampling methods.
+
+[normalizationComparsion.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/normalizationComparsion.m) compares error metrics for evaluating the accuracy of the upsampled result using a high-resolution ground truth.
+
+[IsovalueVSVolume.m](https://github.com/ucl-bug/segmentation-upsampler/blob/main/IsovalueVSVolume.m) provides the variation of volume ratio against isovalue, which can be used by the user to select the isovalue based on the desired volume. 
+
+
+## References
+
+[^1]:Liebl, H., Schinz, D., Sekuboyina, A., Malagutti, L., Löffler, M. T., Bayat, A., ... & Kirschke, J. S. (2021). A computed tomography vertebral segmentation dataset with anatomical variations and multi-vendor scanner data. Scientific data, 8(1), 284.
+[^2]:Massey, J. W., & Yilmaz, A. E. (2016, August). AustinMan and AustinWoman: High-fidelity, anatomical voxel models developed from the VHP color images. In 2016 38th Annual International Conference of the IEEE Engineering in Medicine and Biology Society (EMBC) (pp. 3346-3349). IEEE.
