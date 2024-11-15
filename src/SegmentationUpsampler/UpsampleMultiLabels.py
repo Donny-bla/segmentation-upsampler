@@ -1,10 +1,11 @@
 import numpy as np
-from src.SegmentationUpsampler.RigorousPreprocess import MeshPreprocessor
-from src.SegmentationUpsampler.Extractor import IsosurfaceExtractor
-from src.SegmentationUpsampler.Voxelizer import MeshVoxelizer
-from src.SegmentationUpsampler.VoxelizerNumba import MeshVoxelizerNumba
-from src.SegmentationUpsampler.LabelSeparater import LabelSeparation
-from src.SegmentationUpsampler.FillGaps import FillGaps
+from SegmentationUpsampler import RigorousPreprocess
+from SegmentationUpsampler import Extractor
+from SegmentationUpsampler import FillGaps
+from SegmentationUpsampler import LabelSeparater
+from SegmentationUpsampler import Voxelizer
+from SegmentationUpsampler import VoxelizerNumba
+
 """
 Upsamples a labelled image
 
@@ -125,7 +126,7 @@ def upsample(multiLabelMatrix, sigma, targetVolume, scale, spacing, iso,
                            int(gz / dx[2])), dtype=np.uint8)
     smoothedList = []
 
-    labelSeparationInstance = LabelSeparation(multiLabelMatrix)
+    labelSeparationInstance = LabelSeparater.LabelSeparation(multiLabelMatrix)
     labelSeparationInstance.separateLabels()
     separateMatrices, _, labels = labelSeparationInstance.getResults()
 
@@ -133,7 +134,7 @@ def upsample(multiLabelMatrix, sigma, targetVolume, scale, spacing, iso,
         singleLabelMatrix = separateMatrices[i]
         label = labels[i]
 
-        preprocessor = MeshPreprocessor(singleLabelMatrix, sigma, 
+        preprocessor = RigorousPreprocess.MeshPreprocessor(singleLabelMatrix, sigma, 
                                         targetVolume)
         smoothedMatrix, isovalue, croppedMatrix, bounds = (
             preprocessor.meshPreprocessing())
@@ -143,17 +144,17 @@ def upsample(multiLabelMatrix, sigma, targetVolume, scale, spacing, iso,
         if targetVolume:
             iso = isovalue
 
-        isosurfaceExtractor = IsosurfaceExtractor(croppedMatrix, iso)
+        isosurfaceExtractor = Extractor.IsosurfaceExtractor(croppedMatrix, iso)
         faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
 
         x, y, z = np.shape(croppedMatrix)
 
         if NB:
-            voxelizer = MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, 
+            voxelizer = VoxelizerNumba.MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, 
                                            z, scale, spacing, background, 
                                            bounds, label)
         else:
-            voxelizer = MeshVoxelizer(polyData, smoothedMatrix, x, y, z, 
+            voxelizer = Voxelizer.MeshVoxelizer(polyData, smoothedMatrix, x, y, z, 
                                       scale, spacing, background, bounds, 
                                       label)
         background = voxelizer.voxeliseMesh()
@@ -161,13 +162,8 @@ def upsample(multiLabelMatrix, sigma, targetVolume, scale, spacing, iso,
     newMatrix = background
 
     if fillGaps:
-        gapFiller = FillGaps(newMatrix, smoothedList, dx, isovalue)
+        gapFiller = FillGaps.FillGaps(newMatrix, smoothedList, dx, isovalue)
         newMatrix = gapFiller.fillZeros()
 
     return newMatrix
 
-
-if __name__ == "__main__":
-    newMatrix = upsample(multiLabelMatrix, sigma, targetVolume, scale, 
-                         spacing, iso, fillGaps, NB)
-    np.save('multilabelTestShape.npy', multiLabelMatrix)
