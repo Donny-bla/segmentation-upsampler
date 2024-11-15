@@ -8,7 +8,7 @@
 % DATE:
 %     4th September 2024
 % LAST UPDATE:
-%     4th September 2024
+%     15th November 2024
 %
 % This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
@@ -22,7 +22,8 @@ clear all;
 
 %% SETUP FILE PATHS AND ADD DEPENDENCIES
 folderPath = pwd;
-codeDirect = fileparts(folderPath) + "/SegmentationUpsampler";
+codeDirect = folderPath + "/TestSupportingFunction";
+pythonFunction = folderPath + "/runPythonFunction.py";
 dataDirect = fileparts(folderPath) + "/data";
 addpath(codeDirect)
 
@@ -75,7 +76,7 @@ for s = 1:4
         
         disp("processing scale = " + string(ii))
         
-        newMatrix = pyrunfile(codeDirect + "/UpsampleMultiLabels.py", ...
+        newMatrix = pyrunfile(pythonFunction, ...
                               "newMatrix", ...
                               multiLabelMatrix = py.numpy.array( ...
                               originalMatrix), sigma = sigma, ...
