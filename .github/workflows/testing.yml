@@ -23,6 +23,7 @@ jobs:
         python -m pip install matplotlib
         python -m pip install pytest==7.1.2
         python -m pip install coverage
+        ptyhon -m pip install PyXAB
     - name: Test with pytest
       run: |
         coverage run --source=PyXAB -m pytest
