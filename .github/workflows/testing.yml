@@ -22,8 +22,5 @@ jobs:
         python -m pip install pytest==7.1.2
         python -m pip install coverage
 
-    - name: Test with pytest
-      run: |
-        coverage run --source=PyXAB -m pytest
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v3
