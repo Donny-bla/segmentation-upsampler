@@ -5,6 +5,7 @@ from SegmentationUpsampler import FillGaps
 from SegmentationUpsampler import LabelSeparater
 from SegmentationUpsampler import Voxelizer
 from SegmentationUpsampler import VoxelizerNumba
+from SegmentationUpsampler import ImageBase
 
 """
 Upsamples a labelled image
@@ -80,8 +81,8 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
 
 """
-def validateInputs(multiLabelMatrix, sigma, targetVolume, scale, spacing, 
-                   iso, fillGaps, NB):
+def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB):
+
     if not (isinstance(multiLabelMatrix, np.ndarray) and 
             multiLabelMatrix.ndim == 3 and 
             multiLabelMatrix.dtype in [np.float32, np.float64]):
@@ -114,56 +115,55 @@ def validateInputs(multiLabelMatrix, sigma, targetVolume, scale, spacing,
     return True
 
 
-def upsample(multiLabelMatrix, sigma, targetVolume, scale, spacing, iso, 
-             fillGaps, NB):
-    validateInputs(multiLabelMatrix, sigma, targetVolume, scale, spacing, 
-                   iso, fillGaps, NB)
+def upsample(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume = 0, fillGaps = True, NB = False):
+    ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB)
 
-    gx, gy, gz = np.shape(multiLabelMatrix)
-    dx = [scale[0] / spacing[0], scale[1] / spacing[1], 
-          scale[2] / spacing[2]]
-    background = np.zeros((int(gx / dx[0]), int(gy / dx[1]), 
-                           int(gz / dx[2])), dtype=np.uint8)
+    segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume)
+    
+    #gx, gy, gz = np.shape(multiLabelMatrix)
+    #dx = [scale[0] / spacing[0], scale[1] / spacing[1], 
+    #      scale[2] / spacing[2]]
+    #background = np.zeros((int(gx / dx[0]), int(gy / dx[1]), 
+    #                       int(gz / dx[2])), dtype=np.uint8)
     smoothedList = []
 
-    labelSeparationInstance = LabelSeparater.LabelSeparation(multiLabelMatrix)
+    labelSeparationInstance = LabelSeparater.LabelSeparation(segImg)
     labelSeparationInstance.separateLabels()
-    separateMatrices, _, labels = labelSeparationInstance.getResults()
+    labelSeparationInstance.updateImg()
 
-    for i in range(len(separateMatrices)):
-        singleLabelMatrix = separateMatrices[i]
-        label = labels[i]
+    #separateMatrices, _, labels = segImg.getAllLabels()
 
-        preprocessor = RigorousPreprocess.MeshPreprocessor(singleLabelMatrix, sigma, 
-                                        targetVolume)
-        smoothedMatrix, isovalue, croppedMatrix, bounds = (
-            preprocessor.meshPreprocessing())
-        smoothedList.append(smoothedMatrix)
-        croppedMatrix = np.ascontiguousarray(croppedMatrix)
+    for i in range(segImg.getLabelNumber()):
+        #singleLabelMatrix = separateMatrix[i]
+        #label = labels[i]
 
-        if targetVolume:
-            iso = isovalue
+        preprocessor = RigorousPreprocess.MeshPreprocessor(segImg, i)
+        preprocessor.meshPreprocessing()
+        preprocessor.updateImg()
+        
+        binImg = segImg.binaryImgList[i]
+        isosurfaceExtractor = Extractor.IsosurfaceExtractor(segImg, i)
+        isosurfaceExtractor.extractIsosurface()
+        isosurfaceExtractor.updateImg()
 
-        isosurfaceExtractor = Extractor.IsosurfaceExtractor(croppedMatrix, iso)
-        faces, nodes, polyData = isosurfaceExtractor.extractIsosurface()
+        binImg = segImg.binaryImgList[i]
+        print(np.shape(binImg.faces))
 
-        x, y, z = np.shape(croppedMatrix)
-
+        #x, y, z = np.shape(croppedMatrix)
         if NB:
-            voxelizer = VoxelizerNumba.MeshVoxelizerNumba(polyData, smoothedMatrix, x, y, 
-                                           z, scale, spacing, background, 
-                                           bounds, label)
+            voxelizer = VoxelizerNumba.MeshVoxelizerNumba(segImg, i)
         else:
-            voxelizer = Voxelizer.MeshVoxelizer(polyData, smoothedMatrix, x, y, z, 
-                                      scale, spacing, background, bounds, 
-                                      label)
-        background = voxelizer.voxeliseMesh()
+            voxelizer = Voxelizer.MeshVoxelizer(segImg, i)
 
-    newMatrix = background
+        voxelizer.voxeliseMesh()
+        voxelizer.updateImg()
 
     if fillGaps:
-        gapFiller = FillGaps.FillGaps(newMatrix, smoothedList, dx, isovalue)
-        newMatrix = gapFiller.fillZeros()
+        gapFiller = FillGaps.FillGaps(segImg)
+        gapFiller.fillZeros()
+        gapFiller.updateImg()
 
+    newMatrix = segImg.background
     return newMatrix
 
+newMatrix = upsample(multiLabelMatrix, sigma, scale, spacing, iso)

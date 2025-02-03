@@ -1,4 +1,5 @@
 import numpy as np
+from SegmentationUpsampler import ImageBase
 
 class LabelSeparation:
     """
@@ -54,7 +55,8 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
 """
 
-    def __init__(self, multiLabelMatrix):
+    def __init__(self, segImg):
+    
         """
         INIT Initialize the LabelSeparation instance.
 
@@ -68,13 +70,14 @@ License along with pySegmentationUpsampler. If not, see
             multiLabelMatrix : numpy.ndarray
                 Matrix with integer labels.
         """
-        self.multiLabelMatrix = multiLabelMatrix
-        self.x, self.y, self.z = multiLabelMatrix.shape
-        self.labels = np.unique(self.multiLabelMatrix)
+        self.segImg = segImg
+        
+        self.labels = np.unique(self.segImg.multiLabelMatrix)
         if self.labels[0] == 0:
             self.labels = self.labels[1:]
-        self.separateMatrix = np.zeros((len(self.labels), self.x, self.y, 
-                                        self.z), dtype=int)
+
+        self.separateMatrix = np.zeros((len(self.labels), self.segImg.gx, self.segImg.gy, 
+                                        self.segImg.gz), dtype=int)
         self.labelVolume = np.zeros(len(self.labels), dtype=int)
 
     def separateLabels(self):
@@ -90,7 +93,7 @@ License along with pySegmentationUpsampler. If not, see
         """
         for i, label in enumerate(self.labels):
             # Create a binary matrix where 1 corresponds to the current label
-            self.separateMatrix[i] = (self.multiLabelMatrix == label).astype(float)
+            self.separateMatrix[i] = (self.segImg.multiLabelMatrix == label).astype(float)
 
             # Calculate the sum of the binary matrix to get the label volume
             self.labelVolume[i] = np.sum(self.separateMatrix[i])
@@ -103,12 +106,12 @@ License along with pySegmentationUpsampler. If not, see
         self.labelVolume = self.labelVolume[sortedLabels]
         self.labels = self.labels[sortedLabels]
 
-    def getResults(self):
+    def updateImg(self):
         """
-        GETRESULTS Retrieve separated matrices, label volumes, and labels.
+        UPDATEIMG Retrieve separated matrices, label volumes, and labels.
 
         DESCRIPTION:
-            GETRESULTS returns the separated binary matrices, the label 
+            UPDATEIMG returns the separated binary matrices, the label 
             volumes, and the unique labels in the matrix.
 
         OUTPUTS:
@@ -120,4 +123,6 @@ License along with pySegmentationUpsampler. If not, see
             labels            : numpy.ndarray
                 Array of unique labels in the matrix.
         """
-        return np.float32(self.separateMatrix), self.labelVolume, self.labels
+        self.segImg.setSeparateLabels(self.separateMatrix, self.labelVolume, self.labels)
+        
+        #return np.float32(self.separateMatrix), self.labelVolume, self.labels

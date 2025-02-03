@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.ndimage import gaussian_filter
+from SegmentationUpsampler import ImageBase
 
 class MeshPreprocessor:
     """
@@ -60,7 +61,7 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
     """
 
-    def __init__(self, originalMatrix, sigma, targetVolume):
+    def __init__(self, segImg, i):
         """
         INIT Initialize the MeshPreprocessor.
 
@@ -77,13 +78,15 @@ License along with pySegmentationUpsampler. If not, see
             targetVolume   : float
                 Target volume for binary search of isovalue.
         """
-        self.originalMatrix = originalMatrix
-        self.sigma = sigma
-        self.targetVolume = targetVolume
+        self.binaryImg = segImg.binaryImgList[i]
+        self.segImg = segImg
+        self.originalMatrix, _ = segImg.getLabel(i)
+        self.iso = segImg.iso
+
         self.smoothMatrix = None
-        self.isovalue = None
         self.nonZeroShape = None
         self.croppedMatrix = None
+
 
     def applyGaussianFilter(self, image):
         """
@@ -101,12 +104,12 @@ License along with pySegmentationUpsampler. If not, see
             filteredImage : numpy.ndarray
                 The filtered 3D image.
         """
-        if self.sigma == 0:
+        if self.segImg.sigma == 0:
             return image
-        filteredImage = gaussian_filter(image, sigma=self.sigma)
+        filteredImage = gaussian_filter(image, sigma=self.segImg.sigma)
         return filteredImage
 
-    def cropLabels(self):
+    def cropLabels(self, image):
         """
         CROPLABELS Crop zero labels to speed up the following process.
 
@@ -121,7 +124,7 @@ License along with pySegmentationUpsampler. If not, see
             nonZeroShape  : tuple
                 Bounds of the cropped matrix.
         """
-        nonZeroLabels = np.nonzero(self.smoothMatrix)
+        nonZeroLabels = np.nonzero(image)
         lowerBound = np.min(nonZeroLabels, axis=1)
         upperBound = np.max(nonZeroLabels, axis=1) + 1
         croppedMatrix = self.smoothMatrix[lowerBound[0]:upperBound[0], 
@@ -129,6 +132,46 @@ License along with pySegmentationUpsampler. If not, see
                                           lowerBound[2]:upperBound[2]]
         nonZeroShape = (lowerBound, upperBound)
         return croppedMatrix, nonZeroShape
+
+    def computeIso(self):
+    
+        # Compute original and smoothed volumes
+        originalVolume = np.sum(self.originalMatrix == 1)
+
+        # Binary search for isovalue
+        upper = np.max(self.smoothMatrix)
+        lower = np.min(self.smoothMatrix)
+        isovalue = (upper + lower) / 2
+        smoothedVolume = np.sum(self.smoothMatrix > isovalue)
+
+        volumeDiff = -1
+        if smoothedVolume < originalVolume:
+            volumeDiff = 1
+
+        v = volumeDiff / (np.log(np.abs(smoothedVolume - originalVolume) / 
+                                 originalVolume))
+
+        ii = 0
+        while ((v >= (self.segImg.targetVolume + 0.005) or 
+                v <= (self.segImg.targetVolume - 0.005)) and ii < 1000):
+            ii += 1
+            if v < self.segImg.targetVolume:
+                lower = isovalue
+            else:
+                upper = isovalue
+
+            isovalue = (upper + lower) / 2
+            smoothedVolume = np.sum(self.smoothMatrix > isovalue)
+
+            volumeDiff = -1
+            if smoothedVolume < originalVolume:
+                volumeDiff = 1
+
+            v = (-1 / (np.log(np.abs(smoothedVolume - originalVolume) / 
+                              originalVolume))) * volumeDiff
+        
+        self.iso = isovalue
+        #self.segImg.setIso(isovalue)
 
     def meshPreprocessing(self):
         """
@@ -153,42 +196,14 @@ License along with pySegmentationUpsampler. If not, see
         # Gaussian smoothing
         self.smoothMatrix = self.applyGaussianFilter(self.originalMatrix)
 
-        # Compute original and smoothed volumes
-        originalVolume = np.sum(self.originalMatrix == 1)
+        if self.segImg.targetVolume != 0:
+            self.computeIso()
+            print("isovalue set to:", self.iso)
 
-        # Binary search for isovalue
-        upper = np.max(self.smoothMatrix)
-        lower = np.min(self.smoothMatrix)
-        self.isovalue = (upper + lower) / 2
-        smoothedVolume = np.sum(self.smoothMatrix > self.isovalue)
+        self.croppedMatrix, self.nonZeroShape = self.cropLabels(self.smoothMatrix)
+        self.croppedMatrix =  np.ascontiguousarray(self.croppedMatrix)
 
-        volumeDiff = -1
-        if smoothedVolume < originalVolume:
-            volumeDiff = 1
-
-        v = volumeDiff / (np.log(np.abs(smoothedVolume - originalVolume) / 
-                                 originalVolume))
-
-        ii = 0
-        while ((v >= (self.targetVolume + 0.005) or 
-                v <= (self.targetVolume - 0.005)) and ii < 1000):
-            ii += 1
-            if v < self.targetVolume:
-                lower = self.isovalue
-            else:
-                upper = self.isovalue
-
-            self.isovalue = (upper + lower) / 2
-            smoothedVolume = np.sum(self.smoothMatrix > self.isovalue)
-
-            volumeDiff = -1
-            if smoothedVolume < originalVolume:
-                volumeDiff = 1
-
-            v = (-1 / (np.log(np.abs(smoothedVolume - originalVolume) / 
-                              originalVolume))) * volumeDiff
-
-        self.croppedMatrix, self.nonZeroShape = self.cropLabels()
-
-        return self.smoothMatrix, self.isovalue, self.croppedMatrix, \
-               self.nonZeroShape
+    def updateImg(self):
+        
+        self.binaryImg.setPreprocessedImg(self.smoothMatrix, self.croppedMatrix, self.nonZeroShape, self.iso)
+        #return self.smoothMatrix, self.croppedMatrix, self.nonZeroShape

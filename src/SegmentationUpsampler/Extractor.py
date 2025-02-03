@@ -54,7 +54,7 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
     """
 
-    def __init__(self, array, threshold):
+    def __init__(self, segImg, i):
         """
         INIT Initialize the IsosurfaceExtractor.
 
@@ -68,8 +68,10 @@ License along with pySegmentationUpsampler. If not, see
             threshold  : float
                 Threshold value for isosurface extraction.
         """
-        self.array = array
-        self.threshold = threshold
+        self.binaryImg = segImg.binaryImgList[i]
+        self.array = self.binaryImg.croppedImg
+        self.threshold = self.binaryImg.iso
+
         self.faces = None
         self.nodes = None
         self.polyData = None
@@ -143,4 +145,6 @@ License along with pySegmentationUpsampler. If not, see
 
         self.polyData = polyData
 
-        return np.array(self.faces), np.array(self.nodes), self.polyData
+    def updateImg(self):
+        self.binaryImg.setSurfaceMesh(self.polyData, np.array(self.faces), np.array(self.nodes))
+        

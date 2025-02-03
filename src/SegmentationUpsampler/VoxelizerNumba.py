@@ -71,8 +71,9 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
     """
 
-    def __init__(self, mesh, smoothedMatrix, x, y, z, scale, spacing, 
-                 background, bounds, label):
+    def __init__(self, segImg, i):
+#                 mesh, smoothedMatrix, x, y, z, scale, spacing, 
+#                 background, bounds, label):
         """
         INIT Initialize the MeshVoxelizerNumba.
 
@@ -81,41 +82,17 @@ License along with pySegmentationUpsampler. If not, see
             mesh, smoothed matrix, grid dimensions, scale, spacing, 
             background grid, bounds, and label for voxelization.
 
-        INPUTS:
-            mesh          : vtk.vtkPolyData
-                The input mesh to be voxelized.
-            smoothedMatrix: numpy.ndarray
-                Matrix that determines which points are ignored during 
-                voxelization.
-            x             : int
-                Number of grid points along the X-axis.
-            y             : int
-                Number of grid points along the Y-axis.
-            z             : int
-                Number of grid points along the Z-axis.
-            scale         : float
-                Scale factor to adjust the size of the grid.
-            spacing       : tuple
-                The spacing between the grid points along each axis.
-            background    : numpy.ndarray
-                The background grid to which the voxelized mesh will be 
-                added.
-            bounds        : list of tuples
-                The bounds of the grid [(x_min, x_max), (y_min, y_max), 
-                (z_min, z_max)].
-            label         : int
-                The label to assign to voxels inside the mesh.
         """
-        self.mesh = mesh
-        self.gx = x
-        self.gy = y
-        self.gz = z
-        self.scale = scale
-        self.spacing = spacing
-        self.lower = bounds[0]
-        self.background = background
-        self.label = label
-        self.smoothedMatrix = smoothedMatrix
+        self.segImg = segImg
+        self.binImg = segImg.binaryImgList[i]
+
+        self.smoothedMatrix = self.binImg.smoothedImg
+        self.mesh = self.binImg.polyData
+        self.background = self.segImg.background
+        self.label = self.binImg.label
+
+        self.gx, self.gy, self.gz = np.shape(self.binImg.croppedImg)
+        self.lower = self.binImg.bounds[0]
 
     def voxeliseMesh(self):
         """
@@ -134,8 +111,7 @@ License along with pySegmentationUpsampler. If not, see
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
         distanceFilter.SetInput(self.mesh)
 
-        dx = [self.scale[0] / self.spacing[0], self.scale[1] / self.spacing[1], 
-              self.scale[2] / self.spacing[2]]
+        dx = self.segImg.dx
         self.background, points = pointWiseProcess(self.gx, self.gy, self.gz, 
                                                    dx, self.lower, 
                                                    self.smoothedMatrix, 
@@ -149,8 +125,9 @@ License along with pySegmentationUpsampler. If not, see
                 py = round(p[1] / dx[1]) + int(self.lower[1] / dx[1])
                 pz = round(p[0] / dx[2]) + int(self.lower[2] / dx[2])
                 self.background[px, py, pz] = self.label
-
-        return self.background
+    
+    def updateImg(self):
+        self.segImg.setUpsampledLabel(self.background)
 
 @nb.njit
 def pointWiseProcess(gx, gy, gz, dx, lower, smoothedMatrix, label, 

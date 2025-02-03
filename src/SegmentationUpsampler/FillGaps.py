@@ -54,7 +54,8 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
     """
 
-    def __init__(self, newMatrix, smoothedMatrixList, dx, isovalue):
+    def __init__(self, segImg):
+    #(self, newMatrix, smoothedMatrixList, dx, isovalue):
         """
         INIT Initialize the FillGaps class.
 
@@ -75,10 +76,10 @@ License along with pySegmentationUpsampler. If not, see
                 The isovalue threshold for determining if a voxel belongs 
                 to a mesh.
         """
-        self.newMatrix = newMatrix
-        self.smoothedMatrixList = smoothedMatrixList
-        self.dx = dx
-        self.isovalue = isovalue
+        self.segImg = segImg
+        self.newMatrix = self.segImg.background
+        self.dx = self.segImg.dx
+        self.isovalue = self.segImg.iso
     
     def findSurroundings(self, x, y, z):
         """
@@ -127,7 +128,9 @@ License along with pySegmentationUpsampler. If not, see
         for x, y, z in zeros:
             inMesh = 0
 
-            for smoothedMatrix in self.smoothedMatrixList:
+            for i in range(self.segImg.getLabelNumber()):
+                binImg = self.segImg.binaryImgList[i]
+                smoothedMatrix = binImg.smoothedImg
                 if smoothedMatrix[int(x*self.dx[0]), int(y*self.dx[1]), 
                                   int(z*self.dx[2])] > self.isovalue:
                     inMesh = 1
@@ -140,5 +143,7 @@ License along with pySegmentationUpsampler. If not, see
                     mostFrequent = np.bincount(surroundings).argmax()
                     self.newMatrix[x, y, z] = mostFrequent
 
+    def updateImg(self):
+        self.segImg.setUpsampledLabel(self.newMatrix)
         print("Zeros filled")
-        return self.newMatrix
+        
