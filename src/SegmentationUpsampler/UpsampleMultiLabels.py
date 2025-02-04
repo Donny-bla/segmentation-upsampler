@@ -59,7 +59,7 @@ INPUTS:
 ABOUT:
     author - Liangpu Liu, Rui Xu, Bradley Treeby
     date - 25th Aug 2024
-    last update - 25th Aug 2024
+    last update - 4th Feb 2025
     
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -115,7 +115,7 @@ def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, f
     return True
 
 
-def upsample(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume = 0, fillGaps = True, NB = False):
+def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVolume = 0, fillGaps = False, NB = True):
     ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB)
 
     segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume)
@@ -166,4 +166,4 @@ def upsample(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume = 0, fil
     newMatrix = segImg.background
     return newMatrix
 
-newMatrix = upsample(multiLabelMatrix, sigma, scale, spacing, iso)
+newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing)
