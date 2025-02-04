@@ -127,7 +127,7 @@ License along with pySegmentationUpsampler. If not, see
                 self.background[px, py, pz] = self.label
     
     def updateImg(self):
-        self.segImg.setUpsampledLabel(self.background)
+        self.segImg.setUpdatedImg(self.background)
 
 @nb.njit
 def pointWiseProcess(gx, gy, gz, dx, lower, smoothedMatrix, label, 

@@ -144,6 +144,6 @@ License along with pySegmentationUpsampler. If not, see
                     self.newMatrix[x, y, z] = mostFrequent
 
     def updateImg(self):
-        self.segImg.setUpsampledLabel(self.newMatrix)
+        self.segImg.setUpdatedImg(self.newMatrix)
         print("Zeros filled")
         

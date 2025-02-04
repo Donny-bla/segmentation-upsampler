@@ -67,7 +67,7 @@ License along with pySegmentationUpsampler. If not, see
         self.gx, self.gy, self.gz = np.shape(multiLabelMatrix)
         self.dx = [scale[0] / spacing[0], scale[1] / spacing[1], 
             scale[2] / spacing[2]]
-        self.background = np.zeros((int(self.gx / self.dx[0]), int(self.gy / self.dx[1]), 
+        self.newImg = np.zeros((int(self.gx / self.dx[0]), int(self.gy / self.dx[1]), 
                             int(self.gz / self.dx[2])), dtype=np.uint8)
         self.smoothedList = []
 
@@ -84,8 +84,8 @@ License along with pySegmentationUpsampler. If not, see
         self.labels = labels
         self.generateBinaryImgList()
 
-    def setUpsampledLabel(self, background):
-        self.background = background
+    def setUpdatedImg(self, newImg):
+        self.newImg = newImg
 
     def getAllLabels(self):
         return self.separateMatrix, self.labelVolume, self.labels
