@@ -124,11 +124,11 @@ License along with pySegmentationUpsampler. If not, see
                 The voxelized matrix with gaps filled.
         """
         zeros = np.argwhere(self.newMatrix == 0)
-        
+        binImgList = [self.segImg.binaryImgList[i] for i in range(self.segImg.getLabelNumber())]
         for x, y, z in zeros:
             inMesh = 0
 
-            for i in range(self.segImg.getLabelNumber()):
+            for binImg in binImgList:
                 binImg = self.segImg.binaryImgList[i]
                 smoothedMatrix = binImg.smoothedImg
                 if smoothedMatrix[int(x*self.dx[0]), int(y*self.dx[1]), 

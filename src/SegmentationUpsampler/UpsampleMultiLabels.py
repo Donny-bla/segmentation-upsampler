@@ -119,23 +119,12 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
     ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB)
 
     segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume)
-    
-    #gx, gy, gz = np.shape(multiLabelMatrix)
-    #dx = [scale[0] / spacing[0], scale[1] / spacing[1], 
-    #      scale[2] / spacing[2]]
-    #background = np.zeros((int(gx / dx[0]), int(gy / dx[1]), 
-    #                       int(gz / dx[2])), dtype=np.uint8)
-    smoothedList = []
 
     labelSeparationInstance = LabelSeparater.LabelSeparation(segImg)
     labelSeparationInstance.separateLabels()
     labelSeparationInstance.updateImg()
 
-    #separateMatrices, _, labels = segImg.getAllLabels()
-
     for i in range(segImg.getLabelNumber()):
-        #singleLabelMatrix = separateMatrix[i]
-        #label = labels[i]
 
         preprocessor = RigorousPreprocess.MeshPreprocessor(segImg, i)
         preprocessor.meshPreprocessing()
@@ -147,9 +136,8 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
         isosurfaceExtractor.updateImg()
 
         binImg = segImg.binaryImgList[i]
-        print(np.shape(binImg.faces))
+        #print(np.shape(binImg.faces))
 
-        #x, y, z = np.shape(croppedMatrix)
         if NB:
             voxelizer = VoxelizerNumba.MeshVoxelizerNumba(segImg, i)
         else:
@@ -166,4 +154,4 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
     newMatrix = segImg.background
     return newMatrix
 
-newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing)
+newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing, fillGaps = True)
