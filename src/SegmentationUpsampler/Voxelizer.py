@@ -84,7 +84,7 @@ License along with pySegmentationUpsampler. If not, see
 
         self.smoothedMatrix = self.binImg.smoothedImg
         self.mesh = self.binImg.polyData
-        self.background = self.segImg.background
+        self.background = self.segImg.newImg
         self.label = self.binImg.label
 
         self.gx, self.gy, self.gz = np.shape(self.binImg.croppedImg)

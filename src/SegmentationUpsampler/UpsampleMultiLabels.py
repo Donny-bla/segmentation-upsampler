@@ -6,6 +6,7 @@ from SegmentationUpsampler import LabelSeparater
 from SegmentationUpsampler import Voxelizer
 from SegmentationUpsampler import VoxelizerNumba
 from SegmentationUpsampler import ImageBase
+from SegmentationUpsampler import FillGapsNumba
 
 """
 Upsamples a labelled image
@@ -147,11 +148,14 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
         voxelizer.updateImg()
 
     if fillGaps:
-        gapFiller = FillGaps.FillGaps(segImg)
+        if NB:
+            gapFiller = FillGapsNumba.FillGaps(segImg)
+        else:
+            gapFiller = FillGaps.FillGaps(segImg)
         gapFiller.fillZeros()
         gapFiller.updateImg()
 
-    newMatrix = segImg.background
+    newMatrix = segImg.newImg
     return newMatrix
 
-newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing, fillGaps = True)
+newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing, fillGaps = True, NB = True)

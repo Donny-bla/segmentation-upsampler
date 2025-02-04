@@ -1,3 +1,4 @@
+
 import numpy as np
 
 class FillGaps:
@@ -77,7 +78,7 @@ License along with pySegmentationUpsampler. If not, see
                 to a mesh.
         """
         self.segImg = segImg
-        self.newMatrix = self.segImg.background
+        self.newMatrix = self.segImg.newImg
         self.dx = self.segImg.dx
         self.isovalue = self.segImg.iso
     
@@ -129,7 +130,6 @@ License along with pySegmentationUpsampler. If not, see
             inMesh = 0
 
             for binImg in binImgList:
-                binImg = self.segImg.binaryImgList[i]
                 smoothedMatrix = binImg.smoothedImg
                 if smoothedMatrix[int(x*self.dx[0]), int(y*self.dx[1]), 
                                   int(z*self.dx[2])] > self.isovalue:
