@@ -1,5 +1,4 @@
 import numpy as np
-from SegmentationUpsampler import RigorousPreprocess
 from SegmentationUpsampler import Extractor
 from SegmentationUpsampler import FillGaps
 from SegmentationUpsampler import LabelSeparater
@@ -7,6 +6,7 @@ from SegmentationUpsampler import Voxelizer
 from SegmentationUpsampler import VoxelizerNumba
 from SegmentationUpsampler import ImageBase
 from SegmentationUpsampler import FillGapsNumba
+from SegmentationUpsampler import Preprocess
 
 """
 Upsamples a labelled image
@@ -90,11 +90,8 @@ def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, f
         raise ValueError("MultiLabelMatrix should be a 3D numpy array of " +
                          "floating numbers.")
     
-    if not (isinstance(sigma, (float, int)) and sigma >= 0):
-        raise ValueError("Sigma should be a floating number >= 0.")
-    
-    if not isinstance(targetVolume, (float, int)):
-        raise ValueError("TargetVolume should be a floating number.")
+    if not (isinstance(sigma, (float, int)) and (sigma >= 0 or sigma == -1)):
+        raise ValueError("Sigma should be a floating number >= 0, set to -1 to generate sigma automatically.")
     
     if not (len(scale) == 3 and 
             all(isinstance(x, (float, int)) for x in scale)):
@@ -104,8 +101,8 @@ def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, f
             all(isinstance(x, (float, int)) for x in spacing)):
         raise ValueError("Spacing should be a list of 3 floating numbers.")
     
-    if not (isinstance(iso, (float, int)) and 0 <= iso <= 1):
-        raise ValueError("Iso should be a floating number from 0 to 1.")
+    if not (isinstance(iso, (float, int)) and (0 <= iso <= 1 or iso == -1)):
+        raise ValueError("Iso should be a floating number from 0 to 1, set to -1 to generate isovalue automatically.")
     
     if not isinstance(fillGaps, bool):
         raise ValueError("FillGaps should be a boolean value.")
@@ -116,7 +113,7 @@ def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, f
     return True
 
 
-def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVolume = 0, fillGaps = False, NB = True):
+def upsample(multiLabelMatrix, scale, sigma = -1, iso = -1, spacing = [1, 1, 1], targetVolume = 0, fillGaps = False, NB = True):
     ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB)
 
     segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume)
@@ -126,18 +123,14 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
     labelSeparationInstance.updateImg()
 
     for i in range(segImg.getLabelNumber()):
+        preprocesser = Preprocess.ImagePreprocess(segImg, i, False)
+        preprocesser.meshPreprocessing()
+        preprocesser.updateImg()
 
-        preprocessor = RigorousPreprocess.MeshPreprocessor(segImg, i)
-        preprocessor.meshPreprocessing()
-        preprocessor.updateImg()
-        
-        binImg = segImg.binaryImgList[i]
+
         isosurfaceExtractor = Extractor.IsosurfaceExtractor(segImg, i)
         isosurfaceExtractor.extractIsosurface()
         isosurfaceExtractor.updateImg()
-
-        binImg = segImg.binaryImgList[i]
-        #print(np.shape(binImg.faces))
 
         if NB:
             voxelizer = VoxelizerNumba.MeshVoxelizerNumba(segImg, i)
@@ -156,6 +149,7 @@ def upsample(multiLabelMatrix, scale, sigma, iso, spacing = [1, 1, 1], targetVol
         gapFiller.updateImg()
 
     newMatrix = segImg.newImg
+
     return newMatrix
 
-newMatrix = upsample(multiLabelMatrix, scale, sigma, iso, spacing, fillGaps = True, NB = True)
+newMatrix = upsample(multiLabelMatrix, scale, spacing=spacing)

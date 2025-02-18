@@ -8,6 +8,7 @@ class BinaryImage:
         self.label = label
 
         self.iso = None
+        self.sigma = None
         self.smoothedImg = None
         self.croppedImg = None
         self.bounds = None
@@ -16,11 +17,18 @@ class BinaryImage:
         self.faces = None
         self.nodes = None
     
-    def setPreprocessedImg(self, smoothMatrix, croppedMatrix, nonZeroShape, iso):
+    def setPreprocessedImg(self, smoothMatrix, croppedMatrix, nonZeroShape):
         self.smoothedImg = smoothMatrix
         self.croppedImg = croppedMatrix
         self.bounds = nonZeroShape
+    
+    def setIsovalue(self, iso):
         self.iso = iso
+        print("label:", self.label, "mesh extracted with iso: ", self.iso)
+
+    def setSigma(self, sigma):
+        self.sigma = sigma
+        print("label: ", self.label, "smoothed with sigma: ", self.sigma)
 
     def setSurfaceMesh(self, polyData, faces, nodes):
         self.polyData = polyData
