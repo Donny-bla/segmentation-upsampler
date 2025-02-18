@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.signal import convolve
 from scipy.ndimage import gaussian_filter
-from SegmentationUpsampler import ImageBase
 
 class ImagePreprocess:
 
