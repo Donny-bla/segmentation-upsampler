@@ -16,7 +16,7 @@
 % DATE:
 %     26th August 2024
 % LAST UPDATE:
-%     15th November 2024
+%     19th February 2025
 %
 % This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
@@ -30,10 +30,10 @@
 % Define the paths to the required code and data directories.
 folderPath = pwd;
 codeDirect = folderPath + "/TestSupportingFunction";
-pythonFunction = folderPath + "/runPythonFunction.py";
+pythonFunction = fileparts(folderPath) + "/SegmentationUpsampler/UpsampleMultiLabels.py";
 dataDirect = fileparts(folderPath) + "/data";
 addpath(codeDirect)
-
+addpath(fileparts(pythonFunction))
 %% IMPORTANT VARIABLES
 % Define key variables used in the upsampling process.
 % dx: Grid spacing for upsampling
@@ -57,17 +57,13 @@ spacing  = info.PixelDimensions;  % Extract pixel spacing information
 % Use a Python script to upsample the original matrix. The upsampling is 
 % performed by invoking a Python script that applies a series of 
 % transformations to the 3D data.
+%% I haven't make this update packaged, just move to the SegmentationUpsampler folder while running this part
 pyenv;
 newMatrix = pyrunfile(pythonFunction, ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
-                      sigma = sigma, ...
-                      targetVolume = Volume, ...
                       scale = [dx, dx, dx], ...
-                      spacing = spacing, ...
-                      iso = isovalue, ...
-                      fillGaps = false, ...
-                      NB = true);
+                      spacing = spacing);
 
 newMatrix = double(newMatrix);  % Convert the new matrix to double precision
 

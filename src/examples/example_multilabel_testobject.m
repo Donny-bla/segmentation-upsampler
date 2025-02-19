@@ -8,7 +8,7 @@
 % DATE:
 %     26th August 2024
 % LAST UPDATE:
-%     15th November 2024
+%     19th February 2025
 %
 % This script is part of the pySegmentationUpsampler 
 % Copyright (C) 2024 Liangpu Liu, Rui Xu, Bradley Treeby
@@ -22,10 +22,10 @@
 % Define the paths to the required code and data directories.
 folderPath = pwd;
 codeDirect = folderPath + "/TestSupportingFunction";
-pythonFunction = folderPath + "/runPythonFunction.py";
+pythonFunction = fileparts(folderPath) + "/SegmentationUpsampler/UpsampleMultiLabels.py";
 dataDirect = fileparts(folderPath) + "/data";
 addpath(codeDirect)
-
+addpath(fileparts(pythonFunction))
 
 %% IMPORTANT VARIABLES
 % Define key variables used in the 3D shape creation and upsampling process.
@@ -43,8 +43,7 @@ radius = round(N/3);
 dx = [0.5, 0.5, 0.5];         
 spacing = [1.0, 1.0, 1.0];    
 sigma = 0.6;                  
-isovalue = 0.4;               
-Volume = 0;                   
+isovalue = 0.4;                                
 Nref = floor(N / (dx(1) * spacing(1)));  
 fac = 1 / (dx(1) * spacing(1));          
 radiusRef = radius / (dx(1) * spacing(1));
@@ -55,17 +54,12 @@ originalMatrix = makeShapes("MultiLabel", [radius], [N, N, 80], [0, 0, 0]);
 
 %% UPSAMPLE THE ORIGINAL MATRIX
 % Use a Python script to upsample the original matrix.
+%% I haven't make this update packaged, just move to the SegmentationUpsampler folder while running this part
 pyenv;
 newMatrix = pyrunfile(pythonFunction, ...
                       "newMatrix", ...
                       multiLabelMatrix = py.numpy.array(originalMatrix), ...
-                      sigma = sigma, ...
-                      targetVolume = Volume, ...
-                      scale = dx, ...
-                      spacing = spacing, ...
-                      iso = isovalue, ...
-                      fillGaps = false, ...
-                      NB = true);
+                      scale = dx);
 
 %% CREATE REFERENCE DATA
 % Generate a high-resolution reference matrix with the same shape parameters.
