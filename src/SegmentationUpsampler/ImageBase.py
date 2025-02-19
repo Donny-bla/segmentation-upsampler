@@ -63,14 +63,13 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
     """
 
-    def __init__(self, multiLabelMatrix, sigma, scale, spacing, iso, targetVolume):
+    def __init__(self, multiLabelMatrix, sigma, scale, spacing, iso):
         """
 
         """
         self.multiLabelMatrix = multiLabelMatrix
         self.sigma = sigma
         self.iso = iso
-        self.targetVolume = targetVolume
         
         self.gx, self.gy, self.gz = np.shape(multiLabelMatrix)
         self.dx = [scale[0] / spacing[0], scale[1] / spacing[1], 

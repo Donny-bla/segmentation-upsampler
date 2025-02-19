@@ -1,5 +1,4 @@
 import numpy as np
-from SegmentationUpsampler import ImageBase
 
 class LabelSeparation:
     """

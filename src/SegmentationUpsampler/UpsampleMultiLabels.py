@@ -1,12 +1,20 @@
 import numpy as np
-from SegmentationUpsampler import Extractor
-from SegmentationUpsampler import FillGaps
-from SegmentationUpsampler import LabelSeparater
-from SegmentationUpsampler import Voxelizer
-from SegmentationUpsampler import VoxelizerNumba
-from SegmentationUpsampler import ImageBase
-from SegmentationUpsampler import FillGapsNumba
-from SegmentationUpsampler import Preprocess
+import Extractor
+import FillGaps
+import LabelSeparater
+import Voxelizer
+import VoxelizerNumba
+import ImageBase
+import FillGapsNumba
+import Preprocess
+#from SegmentationUpsampler import Extractor
+#from SegmentationUpsampler import FillGaps
+#from SegmentationUpsampler import LabelSeparater
+#from SegmentationUpsampler import Voxelizer
+#from SegmentationUpsampler import VoxelizerNumba
+#from SegmentationUpsampler import ImageBase
+#from SegmentationUpsampler import FillGapsNumba
+#from SegmentationUpsampler import Preprocess
 
 """
 Upsamples a labelled image
@@ -20,7 +28,7 @@ DESCRIPTION:
 USAGE:
     call from this function:
     newMatrix = upsample(
-        multiLabelMatrix, sigma, targetVolume, 
+        multiLabelMatrix, sigma, 
         scale, spacing, iso, fillGaps, NB
     )
     call from Matlab:
@@ -28,7 +36,6 @@ USAGE:
                           "newMatrix", ...
                           multiLabelMatrix = py.numpy.array(Matrix), ...
                           sigma = sigma, ...
-                          targetVolume = Volume, ...
                           scale = [dx, dx, dx], ...
                           spacing = [1 1 1], ...
                           iso = isovalue, ...
@@ -42,9 +49,6 @@ INPUTS:
     scale   - list of 3 floating numbers, scale of upsampling
     
     sigma   - floating number >= 0, Gaussian smoothing parameter 
-    targetVolume 
-            - floating number, use to generate isovalue automatically, 
-              not used unless iso is 0
     iso     - floating number from 0 to 1, isovalue to extract surface 
               mesh
     
@@ -82,7 +86,7 @@ License along with pySegmentationUpsampler. If not, see
 <http://www.gnu.org/licenses/>.
 
 """
-def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB):
+def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, fillGaps, NB):
 
     if not (isinstance(multiLabelMatrix, np.ndarray) and 
             multiLabelMatrix.ndim == 3 and 
@@ -113,10 +117,11 @@ def ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, f
     return True
 
 
-def upsample(multiLabelMatrix, scale, sigma = -1, iso = -1, spacing = [1, 1, 1], targetVolume = 0, fillGaps = False, NB = True):
-    ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume, fillGaps, NB)
+def upsample(multiLabelMatrix, scale, sigma = -1, iso = -1, spacing = [1, 1, 1], fillGaps = False, NB = True):
+    
+    ValidateInputs(multiLabelMatrix, sigma, scale, spacing, iso, fillGaps, NB)
 
-    segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso, targetVolume)
+    segImg = ImageBase.SegmentedImage(multiLabelMatrix, sigma, scale, spacing, iso)
 
     labelSeparationInstance = LabelSeparater.LabelSeparation(segImg)
     labelSeparationInstance.separateLabels()
@@ -152,4 +157,15 @@ def upsample(multiLabelMatrix, scale, sigma = -1, iso = -1, spacing = [1, 1, 1],
 
     return newMatrix
 
-newMatrix = upsample(multiLabelMatrix, scale, spacing=spacing)
+try: s = sigma
+except: s = -1
+try: i = iso
+except: i = -1
+try: space = spacing
+except: space = [1, 1, 1]
+try: f = fillGaps
+except: f = False
+try: nb = Numba
+except: nb = True
+
+newMatrix = upsample(multiLabelMatrix, scale, sigma=s, iso=i, spacing=space, fillGaps=f, NB=nb)
