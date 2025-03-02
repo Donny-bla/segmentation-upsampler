@@ -4,52 +4,45 @@ import numba as nb
 
 class MeshVoxelizerNumba:
     """
-MESHVOXELIZERNUMBA Voxelize a 3D mesh into a grid.
+MESHVOXELIZERNUMBA Accelerated mesh voxelization using Numba-VTK hybrid processing.
 
 DESCRIPTION:
-    MESHVOXELIZERNUMBA is a class designed to voxelize a 3D mesh 
-    into a grid using the Numba library for accelerated processing. 
-    The class takes in a 3D mesh and generates a voxelized 
-    representation on a specified background grid.
+    Optimized version of MeshVoxelizer that combines Numba-accelerated grid 
+    processing with VTK's mesh operations. Part of segmentation upsampling 
+    pipeline. Features:
+    - Numba-optimized grid traversal
+    - VTK-based mesh inclusion testing
+    - Selective processing using guidance matrix
 
 USAGE:
-    voxelizer = MeshVoxelizerNumba(mesh, smoothedMatrix, x, y, z, 
-                                   scale, spacing, background, 
-                                   bounds, label)
-    updatedGrid = voxelizer.voxeliseMesh()
+    # As part of segmentation processing pipeline:
+    voxelizer = MeshVoxelizerNumba(segImg, label_index)
+    voxelizer.voxeliseMesh()
+    voxelizer.updateImg()
 
-INPUTS:
-    mesh          : vtk.vtkPolyData
-        The input mesh to be voxelized.
-    smoothedMatrix: numpy.ndarray
-        Matrix that determines which points are ignored during 
-        voxelization.
-    x             : int
-        Number of grid points along the X-axis.
-    y             : int
-        Number of grid points along the Y-axis.
-    z             : int
-        Number of grid points along the Z-axis.
-    scale         : float
-        Scale factor to adjust the size of the grid.
-    spacing       : tuple
-        The spacing between the grid points along each axis.
-    background    : numpy.ndarray
-        The background grid to which the voxelized mesh will be added.
-    bounds        : list of tuples
-        The bounds of the grid [(x_min, x_max), (y_min, y_max), 
-        (z_min, z_max)].
-    label         : int
-        The label to assign to voxels inside the mesh.
-
-OUTPUTS:
-    updatedGrid   : numpy.ndarray
-        The updated background grid with the voxelized mesh.
+ATTRIBUTES:
+    segImg         : ImageBase.SegmentedImage
+        Main container for segmentation data
+    binImg         : ImageBase.BinaryImage
+        Label-specific processing data
+    smoothedMatrix : numpy.ndarray 
+        Pre-computed guidance matrix (1=set, 0=ignore, other=test)
+    mesh           : vtk.vtkPolyData
+        Target surface mesh for voxelization
+    background     : numpy.ndarray
+        Reference to output grid in SegmentedImage
+    label          : int
+        Current label identifier
+    gx, gy, gz     : int
+        Dimensions of cropped processing region
+    lower          : tuple
+        Minimum bounds of cropped region
 
 ABOUT:
     author        : Liangpu Liu, Rui Xu, Bradley Treeby
     date          : 25th Aug 2024
-    last update   : 25th Aug 2024
+    last update   :  1st Mar 2025
+
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -72,16 +65,18 @@ License along with pySegmentationUpsampler. If not, see
     """
 
     def __init__(self, segImg, i):
-#                 mesh, smoothedMatrix, x, y, z, scale, spacing, 
-#                 background, bounds, label):
         """
-        INIT Initialize the MeshVoxelizerNumba.
+        INIT Prepare Numba-accelerated voxelizer for label processing.
 
         DESCRIPTION:
-            INIT initializes the MeshVoxelizerNumba class with the input 
-            mesh, smoothed matrix, grid dimensions, scale, spacing, 
-            background grid, bounds, and label for voxelization.
+            Initializes from SegmentedImage container and label index.
+            Inherits spatial parameters and processing masks.
 
+        INPUTS:
+            segImg      : ImageBase.SegmentedImage
+                Main processing container
+            i           : int
+                Index in binaryImgList for target label
         """
         self.segImg = segImg
         self.binImg = segImg.binaryImgList[i]
@@ -96,18 +91,15 @@ License along with pySegmentationUpsampler. If not, see
 
     def voxeliseMesh(self):
         """
-        VOXELISEMESH Voxelizes the input mesh and updates the background grid.
+        VOXELISEMESH Execute hybrid Numba/VTK voxelization pipeline.
 
         DESCRIPTION:
-            VOXELISEMESH creates a voxelized representation of the input 
-            mesh on the background grid by evaluating the implicit 
-            function for each grid point.
-
-        OUTPUTS:
-            updatedGrid   : numpy.ndarray
-                The updated background grid with the voxelized mesh.
+            1. Uses Numba-accelerated pre-processing to:
+               - Apply guidance matrix rules
+               - Collect boundary points needing mesh testing
+            2. Applies VTK distance filter to boundary points
+            3. Updates output grid in SegmentedImage
         """
-        # Create an implicit function of the scaled mesh
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
         distanceFilter.SetInput(self.mesh)
 
@@ -119,7 +111,6 @@ License along with pySegmentationUpsampler. If not, see
                                                    self.background)
         for p in points:
             distance = distanceFilter.EvaluateFunction(p)
-            # Update background grid with label if point is inside the mesh
             if distance < 0:
                 px = round(p[2] / dx[0]) + int(self.lower[0] / dx[0])
                 py = round(p[1] / dx[1]) + int(self.lower[1] / dx[1])
@@ -127,43 +118,40 @@ License along with pySegmentationUpsampler. If not, see
                 self.background[px, py, pz] = self.label
     
     def updateImg(self):
+        """Propagate grid changes to SegmentedImage container."""
         self.segImg.setUpdatedImg(self.background)
 
 @nb.njit
 def pointWiseProcess(gx, gy, gz, dx, lower, smoothedMatrix, label, 
                      background):
     """
-    POINTWISEPROCESS Voxelize the mesh by processing each grid point.
+    NUMBA-ACCELERATED GRID PROCESSING
 
     DESCRIPTION:
-        POINTWISEPROCESS iterates through each grid point, checks the 
-        corresponding value in the smoothed matrix, and updates the 
-        background grid with the voxelized mesh.
+        First-stage processing that handles:
+        - Grid coordinate calculations
+        - Guidance matrix application
+        - Boundary point collection
 
-    INPUTS:
-        gx             : int
-            Number of grid points along the X-axis.
-        gy             : int
-            Number of grid points along the Y-axis.
-        gz             : int
-            Number of grid points along the Z-axis.
-        dx             : list of float
-            Spacing between the grid points after scaling.
-        lower          : numpy.ndarray
-            Lower bounds of the grid after scaling.
-        smoothedMatrix : numpy.ndarray
-            Matrix that determines which points are ignored during 
-            voxelization.
-        label          : int
-            The label to assign to voxels inside the mesh.
-        background     : numpy.ndarray
-            The background grid to which the voxelized mesh will be added.
+    PARAMETERS:
+        gx, gy, gz   : int
+            Cropped region dimensions
+        dx           : (float, float, float)
+            Grid spacing from SegmentedImage
+        lower        : (int, int, int)
+            Minimum bounds of cropped region
+        smoothedMatrix : array[float]
+            3D guidance matrix
+        label        : int
+            Target label value
+        background   : array[int]
+            Output grid reference
 
-    OUTPUTS:
-        background     : numpy.ndarray
-            The updated background grid with the voxelized mesh.
-        ApplyDistanceFilter : list of list of float
-            Points that need to be evaluated for distance filtering.
+    RETURNS:
+        background   : array[int]
+            Updated output grid reference
+        test_points  : list[array[float]]
+            Collected points needing mesh testing
     """
     ApplyDistanceFilter = []
 

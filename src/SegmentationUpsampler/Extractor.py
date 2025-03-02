@@ -3,36 +3,43 @@ import numpy as np
 
 class IsosurfaceExtractor:
     """
-ISOSURFACEEXTRACTOR Extract isosurfaces from a 3D array.
+ISOSURFACEEXTRACTOR Extract isosurfaces from segmented image data.
 
 DESCRIPTION:
     ISOSURFACEEXTRACTOR is a class designed to extract isosurfaces 
-    from a 3D array using a specified threshold. The extracted 
-    isosurface is represented as faces, nodes, and a vtkPolyData 
-    object.
+    from a segmented image component using VTK's mesh processing 
+    pipeline. Handles label-specific surface extraction including 
+    hole filling and mesh cleaning.
 
 USAGE:
-    extractor = IsosurfaceExtractor(array, threshold)
-    faces, nodes, polyData = extractor.extractIsosurface()
+    # As part of segmentation upsampling pipeline:
+    extractor = IsosurfaceExtractor(segImg, label_index)
+    extractor.extractIsosurface()
 
 INPUTS:
-    array          : numpy.ndarray
-        The 3D array from which the isosurface is extracted.
-    threshold      : float
-        The threshold value for isosurface extraction.
+    segImg       : ImageBase.SegmentedImage
+        Container class with processed segmentation data
+    i           : int
+        Index of the label to process in segImg.binaryImgList
 
-OUTPUTS:
-    faces          : numpy.ndarray
-        Array representing the faces of the extracted isosurface.
-    nodes          : numpy.ndarray
-        Array representing the nodes of the extracted isosurface.
-    polyData       : vtk.vtkPolyData
-        The vtkPolyData object representing the isosurface.
+ATTRIBUTES:
+    binaryImg    : ImageBase.BinaryImage
+        Label-specific image data
+    array        : numpy.ndarray
+        3D array slice for the specified label
+    threshold    : float
+        Calculated isovalue for surface extraction
+    faces        : numpy.ndarray
+        Triangular faces from extracted mesh (Nx3)
+    nodes        : numpy.ndarray
+        Mesh vertices in physical coordinates (Mx3)
+    polyData     : vtk.vtkPolyData
+        Processed surface mesh with topology
 
 ABOUT:
     author         : Liangpu Liu, Rui Xu, and Bradley Treeby.
     date           : 25th Aug 2024
-    last update    : 25th Aug 2024
+    last update    :  1st Mar 2025
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -56,17 +63,17 @@ License along with pySegmentationUpsampler. If not, see
 
     def __init__(self, segImg, i):
         """
-        INIT Initialize the IsosurfaceExtractor.
+        INIT Initialize label-specific surface extractor.
 
         DESCRIPTION:
-            INIT initializes the IsosurfaceExtractor class with the 3D 
-            array and threshold value for isosurface extraction.
+            Configures extraction parameters from SegmentedImage 
+            container and specified label index.
 
         INPUTS:
-            array      : numpy.ndarray
-                3D array from which the isosurface is extracted.
-            threshold  : float
-                Threshold value for isosurface extraction.
+            segImg      : ImageBase.SegmentedImage
+                Main container with preprocessed segmentation data
+            i           : int  
+                Index of label to process in binaryImgList
         """
         self.binaryImg = segImg.binaryImgList[i]
         self.array = self.binaryImg.croppedImg
@@ -78,22 +85,17 @@ License along with pySegmentationUpsampler. If not, see
 
     def extractIsosurface(self):
         """
-        EXTRACTISOSURFACE Extract the isosurface from the 3D array.
+        INIT Initialize label-specific surface extractor.
 
         DESCRIPTION:
-            EXTRACTISOSURFACE extracts the isosurface from the 3D array 
-            using the specified threshold. The method converts the 3D 
-            array to a vtkImageData object, applies the FlyingEdges3D 
-            algorithm, fills holes, removes duplicate points, and 
-            retrieves the resulting faces, nodes, and vtkPolyData object.
+            Configures extraction parameters from SegmentedImage 
+            container and specified label index.
 
-        OUTPUTS:
-            faces      : numpy.ndarray
-                Array representing the faces of the extracted isosurface.
-            nodes      : numpy.ndarray
-                Array representing the nodes of the extracted isosurface.
-            polyData   : vtk.vtkPolyData
-                The vtkPolyData object representing the isosurface.
+        INPUTS:
+            segImg      : ImageBase.SegmentedImage
+                Main container with preprocessed segmentation data
+            i           : int  
+                Index of label to process in binaryImgList
         """
         # Convert the numpy array to a VTK image data
         data = vtk.vtkImageData()
@@ -146,5 +148,7 @@ License along with pySegmentationUpsampler. If not, see
         self.polyData = polyData
 
     def updateImg(self):
-        self.binaryImg.setSurfaceMesh(self.polyData, np.array(self.faces), np.array(self.nodes))
-        
+        """Update parent image with extracted surface data."""
+        self.binaryImg.setSurfaceMesh(self.polyData, 
+                                    np.array(self.faces), 
+                                    np.array(self.nodes))

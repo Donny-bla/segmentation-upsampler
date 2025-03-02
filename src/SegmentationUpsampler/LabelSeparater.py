@@ -2,37 +2,33 @@ import numpy as np
 
 class LabelSeparation:
     """
-LABELSEPARATION Separate labels in a matrix and analyze label volumes.
+LABELSEPARATION Separate labels in SegmentedImage container and analyze volumes.
 
 DESCRIPTION:
-    LABELSEPARATION is a class designed to separate labels in a 
-    multi-label matrix and calculate the volume (number of elements) 
-    for each label. The separated labels are stored in a 4D array 
-    where each slice along the first axis corresponds to a binary 
-    matrix for a specific label.
+    LABELSEPARATION processes a SegmentedImage instance to isolate individual 
+    labels, calculate their volumes, and store results in the parent container. 
+    Operates as part of segmentation upsampling pipeline.
 
 USAGE:
-    separator = LabelSeparation(multiLabelMatrix)
+    # As part of segmentation processing pipeline:
+    separator = LabelSeparation(segImg)
     separator.separateLabels()
-    separatedMatrices, labelVolumes, labels = separator.getResults()
+    separator.updateImg()
 
-INPUTS:
-    multiLabelMatrix : numpy.ndarray
-        Matrix with integer labels.
-
-OUTPUTS:
-    separatedMatrices : numpy.ndarray
-        4D array where each slice along the first axis contains a 
-        binary matrix for each label.
-    labelVolumes      : numpy.ndarray
-        Array containing the volume (number of elements) for each label.
-    labels            : numpy.ndarray
-        Array of unique labels in the matrix.
+ATTRIBUTES:
+    segImg         : ImageBase.SegmentedImage
+        Main container with original segmentation data
+    labels         : numpy.ndarray
+        Unique non-zero labels from input matrix
+    separateMatrix : numpy.ndarray 
+        4D array (label_count x X x Y x Z) of binary masks
+    labelVolume    : numpy.ndarray
+        Voxel counts for each label (sorted descending)
 
 ABOUT:
-    author            : Liangpu Liu, Rui Xu, and Bradley Treeby.
-    date              : 25th Aug 2024
-    last update       : 25th Aug 2024
+    author         : Liangpu Liu, Rui Xu, Bradley Treeby
+    date           : 25th Aug 2024
+    last update    :  1st Mar 2025
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -55,19 +51,16 @@ License along with pySegmentationUpsampler. If not, see
 """
 
     def __init__(self, segImg):
-    
         """
-        INIT Initialize the LabelSeparation instance.
+        INIT Prepare label separation for SegmentedImage instance.
 
         DESCRIPTION:
-            INIT initializes the LabelSeparation class with the 
-            multi-label matrix. The matrix is analyzed to extract unique 
-            labels and prepare the storage for the separated matrices 
-            and their volumes.
+            Initializes label processing from SegmentedImage container.
+            Identifies unique non-zero labels and preallocates storage.
 
         INPUTS:
-            multiLabelMatrix : numpy.ndarray
-                Matrix with integer labels.
+            segImg      : ImageBase.SegmentedImage
+                Container with multi-label matrix and spatial parameters
         """
         self.segImg = segImg
         
@@ -81,14 +74,13 @@ License along with pySegmentationUpsampler. If not, see
 
     def separateLabels(self):
         """
-        SEPARATELABELS Separate labels in the matrix and calculate volumes.
+        SEPARATELABELS Isolate labels and calculate volumetric properties.
 
         DESCRIPTION:
-            SEPARATELABELS processes the multi-label matrix by separating 
-            each label into a binary matrix. It also calculates the volume 
-            for each label by summing the elements in the binary matrix. 
-            The labels and corresponding matrices are then sorted by 
-            volume in descending order.
+            Processes multi-label matrix to:
+            1. Create binary masks for each unique label
+            2. Calculate voxel counts for each label
+            3. Sort labels by descending volume
         """
         for i, label in enumerate(self.labels):
             # Create a binary matrix where 1 corresponds to the current label
@@ -107,21 +99,13 @@ License along with pySegmentationUpsampler. If not, see
 
     def updateImg(self):
         """
-        UPDATEIMG Retrieve separated matrices, label volumes, and labels.
+        UPDATEIMG Store results in SegmentedImage container.
 
         DESCRIPTION:
-            UPDATEIMG returns the separated binary matrices, the label 
-            volumes, and the unique labels in the matrix.
-
-        OUTPUTS:
-            separatedMatrices : numpy.ndarray
-                4D array where each slice along the first axis contains a 
-                binary matrix for each label.
-            labelVolumes      : numpy.ndarray
-                Array containing the volume (number of elements) for each label.
-            labels            : numpy.ndarray
-                Array of unique labels in the matrix.
+            Transfers processed label data back to parent SegmentedImage
+            instance for subsequent pipeline steps.
         """
-        self.segImg.setSeparateLabels(self.separateMatrix, self.labelVolume, self.labels)
-        
+        self.segImg.setSeparateLabels(self.separateMatrix, 
+                                    self.labelVolume, 
+                                    self.labels)
         #return np.float32(self.separateMatrix), self.labelVolume, self.labels

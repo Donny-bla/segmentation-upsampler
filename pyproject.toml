@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pySegUpsampler"
-version = "0.0.4"
+version = "0.0.5"
 authors = [
   { name="Liangpu Liu", email="zcemll0@ucl.ac.uk" },
   { name="Rui Xu", email="rui.xu@ucl.ac.uk" },

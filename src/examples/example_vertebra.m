@@ -72,17 +72,8 @@ newMatrix = double(newMatrix);  % Convert the new matrix to double precision
 % spacing.
 figure;
 
-% Plot the original matrix without defined spacing
-subplot(1, 3, 1);
-crossSection = squeeze(originalMatrix(end/2, :, :));
-crossSection = imrotate(crossSection, 90);
-imagesc(crossSection);
-axis image; 
-title(sprintf('Input Image\n(Spacing Undefined)')); 
-set(gca, "Fontsize", 20);
-
 % Plot the original matrix with defined spacing
-subplot(1, 3, 2);
+subplot(1, 2, 1);
 crossSection = squeeze(originalMatrix(end/2, :, :));
 crossSection = imrotate(crossSection, 90);
 imagesc([0:0.2910:512*0.2910],[0:1.25:214*1.25], crossSection);
@@ -91,10 +82,10 @@ title(sprintf('Input Image\n(Spacing Defined)'));
 set(gca, "Fontsize", 20);
 
 % Plot the upsampled matrix with defined spacing
-subplot(1, 3, 3);
+subplot(1, 2, 2);
 crossSection = squeeze(newMatrix(end/2-1, :, :));
 crossSection = imrotate(crossSection, 90);
 imagesc(crossSection);
 axis image; 
-title(sprintf('Output Image\n(Spacing Defined)')); 
+title(sprintf('Output Image\n(sigma = 0.9)')); 
 set(gca, "Fontsize", 20);

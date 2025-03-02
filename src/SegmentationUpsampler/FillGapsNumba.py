@@ -3,37 +3,35 @@ import numba as nb
 
 class FillGaps:
     """
-FILLGAPS Fill gaps in a voxelized matrix.
+FILLGAPSNUMBA Numba-accelerated post-processing for interstitial void filling.
 
 DESCRIPTION:
-    FILLGAPS is a class designed to fill gaps in a voxelized matrix 
-    by evaluating the surrounding voxels and assigning the most 
-    frequent label to the gaps.
+    Optimized version of FillGaps that uses Numba for performance-critical 
+    operations. Part of segmentation upsampling pipeline. Features:
+    - Numba-accelerated neighborhood analysis
+    - Mesh existence validation using precomputed smooth fields
+    - Majority voting from 26-connected neighborhood
 
 USAGE:
-    gapFiller = FillGaps(newMatrix, smoothedMatrixList, dx, isovalue)
-    filledMatrix = gapFiller.fillZeros()
+    # As part of segmentation processing pipeline:
+    gap_filler = FillGaps(segImg)
+    gap_filler.fillZeros()
+    gap_filler.updateImg()
 
-INPUTS:
-    newMatrix       : numpy.ndarray
-        The voxelized matrix with gaps to be filled.
-    smoothedMatrixList : list of numpy.ndarray
-        A list of smoothed matrices used to check if a voxel belongs 
-        to a mesh.
-    dx              : list of float
-        The scale factors along each axis.
-    isovalue        : float
-        The isovalue threshold for determining if a voxel belongs 
-        to a mesh.
-
-OUTPUTS:
-    filledMatrix    : numpy.ndarray
-        The voxelized matrix with gaps filled.
+ATTRIBUTES:
+    segImg      : ImageBase.SegmentedImage
+        Container with upsampled grid and processing parameters
+    newMatrix   : numpy.ndarray
+        Reference to segImg's output grid (modified in-place)
+    dx          : tuple
+        Grid spacing from original to upsampled space
+    isovalue    : float
+        Threshold for mesh inclusion validation
 
 ABOUT:
-    author          : Liangpu Liu, Rui Xu, and Bradley Treeby.
-    date            : 25th Aug 2024
-    last update     : 25th Aug 2024
+    author      : Liangpu Liu, Rui Xu, Bradley Treeby
+    date        : 25th Aug 2024
+    last update :  1st Mar 2025
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -56,26 +54,16 @@ License along with pySegmentationUpsampler. If not, see
     """
 
     def __init__(self, segImg):
-    #(self, newMatrix, smoothedMatrixList, dx, isovalue):
         """
-        INIT Initialize the FillGaps class.
+        INIT Prepare gap filler with SegmentedImage data.
 
         DESCRIPTION:
-            INIT initializes the FillGaps class with the voxelized 
-            matrix, a list of smoothed matrices, scale factors, and the 
-            isovalue threshold.
+            Initializes with references to processing data from 
+            SegmentedImage container.
 
         INPUTS:
-            newMatrix       : numpy.ndarray
-                The voxelized matrix with gaps to be filled.
-            smoothedMatrixList : list of numpy.ndarray
-                A list of smoothed matrices used to check if a voxel 
-                belongs to a mesh.
-            dx              : list of float
-                The scale factors along each axis.
-            isovalue        : float
-                The isovalue threshold for determining if a voxel belongs 
-                to a mesh.
+            segImg      : ImageBase.SegmentedImage
+                Container with upsampled grid and binary image data
         """
         self.segImg = segImg
         self.newMatrix = self.segImg.newImg
@@ -84,16 +72,15 @@ License along with pySegmentationUpsampler. If not, see
 
     def fillZeros(self):
         """
-        FILLZEROS Fill gaps in the voxelized matrix.
+        FILLZEROS Execute Numba-accelerated void filling.
 
-        DESCRIPTION:
-            FILLZEROS finds all zero-valued voxels in the matrix and 
-            attempts to fill them by evaluating the surrounding voxels 
-            and using the most frequent label.
-
-        OUTPUTS:
-            filledMatrix : numpy.ndarray
-                The voxelized matrix with gaps filled.
+        PROCESS:
+            1. Identify remaining zeros in upsampled grid
+            2. Collect smoothed guidance fields from all labels
+            3. Delegate to Numba-optimized processing:
+               - Coordinate scaling
+               - Mesh inclusion checks
+               - Neighborhood analysis
         """
         zeros = np.argwhere(self.newMatrix == 0)
         smoothedList = []
@@ -104,30 +91,55 @@ License along with pySegmentationUpsampler. If not, see
         self.newMatrix = pointWiseProcess(zeros, smoothedList, self.dx, self.isovalue, self.newMatrix)
     
     def updateImg(self):
+        """Finalize changes in SegmentedImage container."""
         self.segImg.setUpdatedImg(self.newMatrix)
         print("Zeros filled")
         
 @nb.njit
-def pointWiseProcess(zeros, smoothedList, dx, isovalue, newMatrix):
+def pointWiseProcess(zeros, smoothed_list, dx, isovalue, new_matrix):
+    """
+    NUMBA-ACCELERATED VOID PROCESSING CORE
 
+    PARAMETERS:
+        zeros         : array[int, int, int]
+            Array of (x,y,z) coordinates for void voxels
+        smoothed_list : list[array[float]]
+            List of smoothed guidance fields per label
+        dx            : (float, float, float)
+            Scaling factors between grid spaces
+        isovalue      : float
+            Threshold for mesh inclusion
+        new_matrix    : array[int]
+            Output grid to modify (in-place)
+
+    RETURNS:
+        array[int]    : Modified output grid with filled voids
+    """
     for x, y, z in zeros:
-        inMesh = 0
-        for smoothedMatrix in smoothedList:
+        # Convert to original scale coordinates
+        orig_x = int(x * dx[0])
+        orig_y = int(y * dx[1])
+        orig_z = int(z * dx[2])
+        
+        # Check against all label guidance fields
+        in_mesh = False
+        for smoothed in smoothed_list:
+            if smoothed[orig_x, orig_y, orig_z] > isovalue:
+                in_mesh = True
+                break
 
-            if smoothedMatrix[int(x*dx[0]), int(y*dx[1]), int(z*dx[2])] > isovalue:
-                inMesh = 1
-                continue
-
-        if inMesh:
+        if in_mesh:
+            # Analyze 26-connected neighborhood
             surroundings = []
-            xx, yy, zz = np.shape(newMatrix)
-            for i in range(max(0, x-1), min(x+2, xx-1)):
-                for j in range(max(0, y-1), min(y+2, yy-1)):
-                    for k in range(max(0, z-1), min(z+2, zz-1)):
-                        if (i, j, k) != (x, y, z) and newMatrix[i, j, k] != 0:
-                            surroundings.append(newMatrix[i, j, k])
+            xx, yy, zz = new_matrix.shape
+            for i in range(max(0, x-1), min(x+2, xx)):
+                for j in range(max(0, y-1), min(y+2, yy)):
+                    for k in range(max(0, z-1), min(z+2, zz)):
+                        if (i, j, k) != (x, y, z) and new_matrix[i, j, k] != 0:
+                            surroundings.append(new_matrix[i, j, k])
+            
             if surroundings:
-                mostFrequent = np.bincount(surroundings).argmax()
-                newMatrix[x, y, z] = mostFrequent
+                # Apply majority label
+                new_matrix[x, y, z] = np.bincount(np.array(surroundings)).argmax()
     
-    return newMatrix
+    return new_matrix

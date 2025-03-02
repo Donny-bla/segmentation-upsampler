@@ -3,37 +3,35 @@ import numpy as np
 
 class FillGaps:
     """
-FILLGAPS Fill gaps in a voxelized matrix.
+FILLGAPS Post-processing of upsampled segmentation to resolve interstitial voids.
 
 DESCRIPTION:
-    FILLGAPS is a class designed to fill gaps in a voxelized matrix 
-    by evaluating the surrounding voxels and assigning the most 
-    frequent label to the gaps.
+    Operates on SegmentedImage container to fill unassigned voxels between 
+    labeled regions. Uses:
+    - Smoothed guidance maps from preprocessing
+    - Neighborhood majority voting
+    - Mesh inclusion validation
 
 USAGE:
-    gapFiller = FillGaps(newMatrix, smoothedMatrixList, dx, isovalue)
-    filledMatrix = gapFiller.fillZeros()
+    # As part of segmentation pipeline:
+    gap_filler = FillGaps(segImg)
+    gap_filler.fillZeros()
+    gap_filler.updateImg()
 
-INPUTS:
-    newMatrix       : numpy.ndarray
-        The voxelized matrix with gaps to be filled.
-    smoothedMatrixList : list of numpy.ndarray
-        A list of smoothed matrices used to check if a voxel belongs 
-        to a mesh.
-    dx              : list of float
-        The scale factors along each axis.
-    isovalue        : float
-        The isovalue threshold for determining if a voxel belongs 
-        to a mesh.
-
-OUTPUTS:
-    filledMatrix    : numpy.ndarray
-        The voxelized matrix with gaps filled.
+ATTRIBUTES:
+    segImg      : ImageBase.SegmentedImage
+        Container with voxel grid and processing parameters
+    newMatrix   : numpy.ndarray
+        Reference to segImg's output grid (modified in-place)
+    dx          : tuple
+        Grid spacing from SegmentedImage
+    isovalue    : float
+        Threshold for mesh inclusion checks
 
 ABOUT:
-    author          : Liangpu Liu, Rui Xu, and Bradley Treeby.
-    date            : 25th Aug 2024
-    last update     : 25th Aug 2024
+    author      : Liangpu Liu, Rui Xu, Bradley Treeby
+    date        : 25th Aug 2024
+    last update :  1st Mar 2025
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -56,26 +54,16 @@ License along with pySegmentationUpsampler. If not, see
     """
 
     def __init__(self, segImg):
-    #(self, newMatrix, smoothedMatrixList, dx, isovalue):
         """
-        INIT Initialize the FillGaps class.
+        INIT Prepare gap filling for SegmentedImage output.
 
         DESCRIPTION:
-            INIT initializes the FillGaps class with the voxelized 
-            matrix, a list of smoothed matrices, scale factors, and the 
-            isovalue threshold.
+            Initializes gap filler with references to processing data
+            from SegmentedImage container.
 
         INPUTS:
-            newMatrix       : numpy.ndarray
-                The voxelized matrix with gaps to be filled.
-            smoothedMatrixList : list of numpy.ndarray
-                A list of smoothed matrices used to check if a voxel 
-                belongs to a mesh.
-            dx              : list of float
-                The scale factors along each axis.
-            isovalue        : float
-                The isovalue threshold for determining if a voxel belongs 
-                to a mesh.
+            segImg      : ImageBase.SegmentedImage
+                Container with upsampled grid and binary image data
         """
         self.segImg = segImg
         self.newMatrix = self.segImg.newImg
@@ -84,23 +72,18 @@ License along with pySegmentationUpsampler. If not, see
     
     def findSurroundings(self, x, y, z):
         """
-        FINDSURROUNDINGS Find the surrounding non-zero voxels.
+        FINDSURROUNDINGS Identify neighboring labels for void voxel.
 
         DESCRIPTION:
-            FINDSURROUNDINGS checks the 3x3x3 neighborhood around a 
-            voxel to find surrounding non-zero voxels.
+            Examines 26-connected neighborhood to collect adjacent labels.
+            Handles grid boundary conditions.
 
-        INPUTS:
-            x : int
-                The x-coordinate of the voxel.
-            y : int
-                The y-coordinate of the voxel.
-            z : int
-                The z-coordinate of the voxel.
+        PARAMETERS:
+            x, y, z     : int
+                Grid coordinates of target void voxel
 
-        OUTPUTS:
-            surroundings : list of int
-                A list of labels from the surrounding non-zero voxels.
+        RETURNS:
+            list[int]   : Non-zero labels in 3x3x3 neighborhood
         """
         surroundings = []
         xx, yy, zz = self.newMatrix.shape
@@ -113,16 +96,12 @@ License along with pySegmentationUpsampler. If not, see
 
     def fillZeros(self):
         """
-        FILLZEROS Fill gaps in the voxelized matrix.
+        FILLZEROS Resolve interstitial voids in upsampled grid.
 
-        DESCRIPTION:
-            FILLZEROS finds all zero-valued voxels in the matrix and 
-            attempts to fill them by evaluating the surrounding voxels 
-            and using the most frequent label.
-
-        OUTPUTS:
-            filledMatrix : numpy.ndarray
-                The voxelized matrix with gaps filled.
+        PROCESS:
+            1. Identify unassigned (zero) voxels
+            2. Validate against original meshes using smoothed fields
+            3. For valid voids, apply majority label from neighborhood
         """
         zeros = np.argwhere(self.newMatrix == 0)
         binImgList = [self.segImg.binaryImgList[i] for i in range(self.segImg.getLabelNumber())]
@@ -144,6 +123,7 @@ License along with pySegmentationUpsampler. If not, see
                     self.newMatrix[x, y, z] = mostFrequent
 
     def updateImg(self):
+        """Finalize changes in SegmentedImage container."""
         self.segImg.setUpdatedImg(self.newMatrix)
         print("Zeros filled")
         

@@ -3,51 +3,41 @@ import numpy as np
 
 class MeshVoxelizer:
     """
-MESHVOXELIZER Voxelize a 3D mesh into a grid.
+MESHVOXELIZER Integrates mesh data into SegmentedImage voxel grid.
 
 DESCRIPTION:
-    MESHVOXELIZER is a class designed to voxelize a 3D mesh into 
-    a grid. The class processes each point in the grid, evaluating 
-    whether the point lies inside the mesh, and labels the point 
-    accordingly on a background grid.
+    Operates as part of segmentation upsampling pipeline to convert 
+    processed meshes back into volumetric representation. Uses VTK's 
+    implicit distance functions for inside/outside testing.
 
 USAGE:
-    voxelizer = MeshVoxelizer(mesh, smoothedMatrix, x, y, z, scale, 
-                              spacing, background, bounds, label)
-    updatedGrid = voxelizer.voxeliseMesh()
+    # As part of segmentation processing pipeline:
+    voxelizer = MeshVoxelizer(segImg, label_index)
+    voxelizer.voxeliseMesh()
+    voxelizer.updateImg()
 
-INPUTS:
-    mesh          : vtk.vtkPolyData
-        The input mesh to be voxelized.
-    smoothedMatrix: numpy.ndarray
-        Matrix that determines which points are ignored during 
-        voxelization.
-    x             : int
-        Number of grid points along the X-axis.
-    y             : int
-        Number of grid points along the Y-axis.
-    z             : int
-        Number of grid points along the Z-axis.
-    scale         : float
-        Scale factor to adjust the size of the grid.
-    spacing       : tuple
-        The spacing between the grid points along each axis.
-    background    : numpy.ndarray
-        The background grid to which the voxelized mesh will be added.
-    bounds        : list of tuples
-        The bounds of the grid [(x_min, x_max), (y_min, y_max), 
-        (z_min, z_max)].
-    label         : int
-        The label to assign to voxels inside the mesh.
-
-OUTPUTS:
-    updatedGrid   : numpy.ndarray
-        The updated background grid with the voxelized mesh.
+ATTRIBUTES:
+    segImg         : ImageBase.SegmentedImage
+        Main container for segmentation data
+    binImg         : ImageBase.BinaryImage
+        Label-specific processing data
+    smoothedMatrix : numpy.ndarray 
+        Pre-processed mask guiding voxelization
+    mesh           : vtk.vtkPolyData
+        Surface mesh for current label
+    background     : numpy.ndarray
+        Reference to output voxel grid (segImg.newImg)
+    label          : int
+        Current label value being processed
+    gx, gy, gz     : int
+        Dimensions of cropped processing area
+    lower          : tuple
+        Minimum bounds of cropped region
 
 ABOUT:
-    author        : Liangpu Liu, Rui Xu, and Bradley Treeby
+    author        : Liangpu Liu, Rui Xu, Bradley Treeby
     date          : 25th Aug 2024
-    last update   : 25th Aug 2024
+    last update   :  1st Mar 2025
 
 LICENSE:
     This function is part of the pySegmentationUpsampler.
@@ -71,62 +61,77 @@ License along with pySegmentationUpsampler. If not, see
 
     def __init__(self, segImg, i):
         """
-        INIT Initialize the MeshVoxelizer.
+        INIT Prepare voxelization for label-specific mesh.
 
         DESCRIPTION:
-            INIT initializes the MeshVoxelizer class with the input mesh, 
-            smoothed matrix, grid dimensions, scale, spacing, background 
-            grid, bounds, and label for voxelization.
+            Initializes voxelization parameters from SegmentedImage 
+            container and specified label index.
 
+        INPUTS:
+            segImg      : ImageBase.SegmentedImage
+                Main processing container with spatial parameters
+            i           : int
+                Index of label to process in binaryImgList
         """
         self.segImg = segImg
         self.binImg = segImg.binaryImgList[i]
 
+        # Inherit processing parameters from container
         self.smoothedMatrix = self.binImg.smoothedImg
         self.mesh = self.binImg.polyData
-        self.background = self.segImg.newImg
+        self.background = self.segImg.newImg  # Direct reference to output grid
         self.label = self.binImg.label
 
+        # Get spatial parameters for voxelization
         self.gx, self.gy, self.gz = np.shape(self.binImg.croppedImg)
         self.lower = self.binImg.bounds[0]
 
     def voxeliseMesh(self):
         """
-        VOXELISEMESH Voxelizes the input mesh and updates the background grid.
+        VOXELISEMESH Convert mesh to volumetric representation.
 
         DESCRIPTION:
-            VOXELISEMESH processes each point in the grid to determine if 
-            it lies within the mesh. If a point is inside the mesh, it is 
-            labeled accordingly on the background grid.
+            Performs grid-space conversion using:
+            1. VTK implicit distance function for inside/outside testing
+            2. Smoothed matrix guidance for selective processing
+            3. Direct modification of background grid in SegmentedImage
 
-        OUTPUTS:
-            updatedGrid   : numpy.ndarray
-                The updated background grid with the voxelized mesh.
+        PROCESS:
+            - Iterates through cropped processing region
+            - Uses pre-computed smoothed matrix to skip processed areas
+            - Applies mesh distance function for boundary resolution
+            - Updates segmentation grid in-place
         """
-        # Create an implicit function of the scaled mesh
+        # VTK distance calculator for mesh inclusion testing
         distanceFilter = vtk.vtkImplicitPolyDataDistance()
         distanceFilter.SetInput(self.mesh)
 
+        # Get grid spacing from parent container
         dx = self.segImg.dx
 
+        # Process voxels in cropped region
         for k in np.arange(self.lower[0], self.gx + self.lower[0], dx[0]):
             for j in np.arange(self.lower[1], self.gy + self.lower[1], dx[1]):
                 for i in np.arange(self.lower[2], self.gz + self.lower[2], dx[2]):
-                    px = round((k - self.lower[0]) / dx[0]) + int(self.lower[0] / dx[0])
-                    py = round((j - self.lower[1]) / dx[1]) + int(self.lower[1] / dx[1])
-                    pz = round((i - self.lower[2]) / dx[2]) + int(self.lower[2] / dx[2])
+                    # Convert to output grid coordinates
+                    px = round((k - self.lower[0])/dx[0]) + int(self.lower[0]/dx[0])
+                    py = round((j - self.lower[1])/dx[1]) + int(self.lower[1]/dx[1])
+                    pz = round((i - self.lower[2])/dx[2]) + int(self.lower[2]/dx[2])
 
-                    if self.smoothedMatrix[int(k), int(j), int(i)] == 1:
+                    # Apply pre-computed guidance matrix
+                    sm_val = self.smoothedMatrix[int(k), int(j), int(i)]
+                    if sm_val == 1:
                         self.background[px, py, pz] = self.label
-                    elif self.smoothedMatrix[int(k), int(j), int(i)] == 0:
-                        continue 
+                    elif sm_val == 0:
+                        continue  # Skip fully processed areas
                     else:
-                        point = np.array([i - self.lower[2], j - self.lower[1], 
-                                          k - self.lower[0]], dtype=float)
-                        distance = distanceFilter.EvaluateFunction(point)
-
-                        if distance < 0.0:
+                        # Resolve boundary regions with mesh testing
+                        point = np.array([i-self.lower[2], 
+                                        j-self.lower[1], 
+                                        k-self.lower[0]], dtype=float)
+                        if distanceFilter.EvaluateFunction(point) < 0:
                             self.background[px, py, pz] = self.label
                         
     def updateImg(self):
+        """Propagate changes to SegmentedImage container."""
         self.segImg.setUpdatedImg(self.background)

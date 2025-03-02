@@ -39,6 +39,7 @@ function DoC = DegreeOfComplexity(originalModel)
     Volume = sum(originalModel, 'all');
 
     % Compute the DoC as the ratio of surface area to volume
-    DoC = Surface / Volume;
+    %DoC = Volume^(1/3)/Surface^(1/2);
+    DoC = Volume/Surface;
 
 end
