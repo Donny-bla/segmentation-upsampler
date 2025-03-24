@@ -98,7 +98,7 @@ ATTRIBUTES:
                 Gaussian kernel standard deviation
         """
         self.sigma = sigma
-        print(f"Label {self.label}: Smoothed with σ={sigma:.2f}")
+        print(f"Label {self.label}: Smoothed with σ={sigma}")
 
     def setSurfaceMesh(self, polyData, faces, nodes):
         """

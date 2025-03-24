@@ -22,7 +22,8 @@
 % Define the paths to the required code and data directories.
 folderPath = pwd;
 codeDirect = folderPath + "/TestSupportingFunction";
-pythonFunction = fileparts(folderPath) + "/SegmentationUpsampler/UpsampleMultiLabels.py";
+%pythonFunction = fileparts(folderPath) + "/SegmentationUpsampler/UpsampleMultiLabels.py";
+pythonFunction = folderPath + "/runPythonFunction.py";
 dataDirect = fileparts(folderPath) + "/data";
 addpath(codeDirect)
 addpath(fileparts(pythonFunction))
