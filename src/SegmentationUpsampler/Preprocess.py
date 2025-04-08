@@ -75,12 +75,12 @@ License along with pySegmentationUpsampler. If not, see
         return np.sum(np.concatenate(self.array))
     
     def getSurfaceArea(self):
-        """Calculate surface area using 26-neighborhood kernel."""
+        """Calculate surface area using 3*3*3 kernel."""
         surfaceAreaKernel = np.array([[[0,0,0],[0,-1,0],[0,0,0]],
                                     [[0,-1,0],[-1,6,-1],[0,-1,0]],
                                     [[0,0,0],[0,-1,0],[0,0,0]]])
-        surface = convolve(self.array, surfaceAreaKernel, mode="same")
-        return np.sum(np.abs(np.concatenate(surface)))/2
+        surface = self.sparseConvolution(self.array, surfaceAreaKernel)
+        return np.sum(np.abs(np.concatenate(surface)))
     
     def getAxialSurfaceArea(self):
         """Calculate axis-aligned surface areas (X,Y,Z directions)."""
@@ -98,16 +98,34 @@ License along with pySegmentationUpsampler. If not, see
                                       [[0,0,0],[0,-1,0],[0,0,0]]])
         
         # Calculate directional surface areas
-        surface_X = convolve(self.array, surfaceAreaKernel_X, mode="same")
-        surface_Y = convolve(self.array, surfaceAreaKernel_Y, mode="same")
-        surface_Z = convolve(self.array, surfaceAreaKernel_Z, mode="same")
+        surface_X = self.sparseConvolution(self.array, surfaceAreaKernel_X)
+        surface_Y = self.sparseConvolution(self.array, surfaceAreaKernel_Y)
+        surface_Z = self.sparseConvolution(self.array, surfaceAreaKernel_Z)
         
-        return (np.sum(np.abs(np.concatenate(surface_X)))/2,
-                np.sum(np.abs(np.concatenate(surface_Y)))/2,
-                np.sum(np.abs(np.concatenate(surface_Z)))/2)
+        return (np.sum(np.abs(np.concatenate(surface_X))),
+                np.sum(np.abs(np.concatenate(surface_Y))),
+                np.sum(np.abs(np.concatenate(surface_Z))))
     
+    def sparseConvolution(self, array, kernel):
+        """Convolution that only consider non-zero voxels"""
+        outputArray = array
+        padArray = np.pad(array, pad_width=1, mode='constant', constant_values=0)
+        nonZeroLabels = np.nonzero(padArray)
+        nonZeroLabels = list(zip(*nonZeroLabels))
+        for voxel in nonZeroLabels:
+            x, y, z = voxel
+            val = 0
+            for i in range(3):
+                for j in range(3):
+                    for k in range(3):
+                        xi, yj, zk = x + i - 1, y + j - 1, z + k - 1
+                        val = val + padArray[xi, yj, zk] * kernel[i, j, k]
+            outputArray[x-1, y-1, z-1] = val
+        
+        return outputArray
+            
     def grossParameterAV(self):
-        """Compute surface-to-volume ratio metric (A√/V∛)."""
+        """Compute surface-to-volume ratio metric (√A/∛V)."""
         return (self.getSurfaceArea()**(1/2))/(self.getVolume()**(1/3))
     
     def axialParameter(self):
