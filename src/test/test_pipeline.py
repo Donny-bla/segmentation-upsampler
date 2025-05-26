@@ -11,4 +11,4 @@ def test_upsample_dimensions():
     assert upsampled.shape[0] > image.shape[0]
     assert upsampled.shape[1] > image.shape[1]
     assert upsampled.shape[2] > image.shape[2]
-    assert upsampled.dtype == image.dtype
+    assert upsampled.dtype == np.uint8
