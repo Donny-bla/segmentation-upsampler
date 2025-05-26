@@ -1,6 +1,6 @@
 
 import numpy as np
-from src.SegmentationUpsampler.UpsampleMultiLabels import upsample_multilabel
+from SegmentationUpsampler.UpsampleMultiLabels import upsample_multilabel
 
 def test_upsample_multilabel_dimensions():
     image = np.zeros((10, 10, 10), dtype=int)
