@@ -23,6 +23,7 @@ jobs:
         python -m pip install vtk==9.3.0
         python -m pip install scipy==1.12.0
         python -m pip install coverage
+        python -m pip install nunmba
 
     - name: Run Tests with Coverage
       env:
