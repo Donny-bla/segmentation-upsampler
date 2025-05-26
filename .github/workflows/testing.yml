@@ -27,7 +27,7 @@ jobs:
     - name: Run Tests with Coverage
       env:
         PYTHONPATH: src
-      run: coverage run -m pytest tests/
+      run: coverage run -m pytest test/
 
     - name: Generate Coverage Report
       run: coverage xml
