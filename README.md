@@ -13,7 +13,7 @@ Please check the compatibility of lateral Python versions using this link: https
 
 
 Python package Installation:\
-pip install pySegUpsampler==0.0.4
+pip install pySegUpsampler==0.0.8
 
 MATLAB package:\
 k-Wave (http://www.k-wave.org/)
