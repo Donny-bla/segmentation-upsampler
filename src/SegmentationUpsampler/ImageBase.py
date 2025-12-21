@@ -55,14 +55,13 @@ ATTRIBUTES:
         # Image data containers
         self.smoothedImg = None
         self.croppedImg = None
-        self.bounds = None
         
         # Geometry data
         self.polyData = None
         self.faces = None
         self.nodes = None
     
-    def setPreprocessedImg(self, smoothMatrix, croppedMatrix, nonZeroShape):
+    def setPreprocessedImg(self, smoothMatrix, croppedMatrix):
         """
         STOREPREPROCESSED Store smoothed and cropped image data.
 
@@ -71,12 +70,12 @@ ATTRIBUTES:
                 Gaussian-smoothed binary mask
             croppedMatrix  : numpy.ndarray
                 ROI-cropped image data
-            nonZeroShape   : tuple
-                Bounding box of non-zero region (xmin, xmax, ymin, ymax, zmin, zmax)
+            (note: bounding-box information removed — only smoothed and cropped
+            matrices are stored)
         """
         self.smoothedImg = smoothMatrix
         self.croppedImg = croppedMatrix
-        self.bounds = nonZeroShape
+        # Bounding-box / origin information intentionally omitted
     
     def setIsovalue(self, iso):
         """
