@@ -196,7 +196,7 @@ License along with pySegmentationUpsampler. If not, see
         """Apply Gaussian smoothing with current sigma parameters."""
         return gaussian_filter(image, sigma=self.binaryImg.sigma)
     
-    def cropLabels(self, image):
+    def cropLabels(self, image):#unused
         """Crop image to minimal non-zero bounding box.
         
         RETURNS:
@@ -213,13 +213,12 @@ License along with pySegmentationUpsampler. If not, see
         """Full preprocessing pipeline:
         1. Sigma computation
         2. Gaussian smoothing
-        3. ROI cropping
         4. Isovalue determination
         """
         self.setSigma()
         self.smoothMatrix = self.applyGaussianFilter(self.originalImg)
-        self.croppedMatrix = self.cropLabels(self.smoothMatrix)
-        self.croppedMatrix =  np.ascontiguousarray(self.croppedMatrix)
+        # Use the full smoothed image (no cropping)
+        self.croppedMatrix =  np.ascontiguousarray(self.smoothMatrix)
         self.setIsovalue()
 
     def updateImg(self):
