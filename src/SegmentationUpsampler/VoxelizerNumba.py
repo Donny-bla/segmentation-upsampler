@@ -87,6 +87,7 @@ License along with pySegmentationUpsampler. If not, see
         self.label = self.binImg.label
 
         self.gx, self.gy, self.gz = np.shape(self.binImg.croppedImg)
+        self.lower = self.binImg.bounds[0]
 
     def voxeliseMesh(self):
         """
@@ -104,16 +105,16 @@ License along with pySegmentationUpsampler. If not, see
 
         dx = self.segImg.dx
         self.background, points = pointWiseProcess(self.gx, self.gy, self.gz, 
-                                                   dx, 
+                                                   dx, self.lower, 
                                                    self.smoothedMatrix, 
                                                    self.label, 
                                                    self.background)
         for p in points:
             distance = distanceFilter.EvaluateFunction(p)
             if distance < 0:
-                px = round(p[2] / dx[0])
-                py = round(p[1] / dx[1])
-                pz = round(p[0] / dx[2])
+                px = round(p[2] / dx[0]) + int(self.lower[0] / dx[0])
+                py = round(p[1] / dx[1]) + int(self.lower[1] / dx[1])
+                pz = round(p[0] / dx[2]) + int(self.lower[2] / dx[2])
                 self.background[px, py, pz] = self.label
     
     def updateImg(self):
@@ -121,7 +122,7 @@ License along with pySegmentationUpsampler. If not, see
         self.segImg.setUpdatedImg(self.background)
 
 @nb.njit
-def pointWiseProcess(gx, gy, gz, dx, smoothedMatrix, label, 
+def pointWiseProcess(gx, gy, gz, dx, lower, smoothedMatrix, label, 
                      background):
     """
     NUMBA-ACCELERATED GRID PROCESSING
@@ -137,7 +138,8 @@ def pointWiseProcess(gx, gy, gz, dx, smoothedMatrix, label,
             Cropped region dimensions
         dx           : (float, float, float)
             Grid spacing from SegmentedImage
-        (note: bounding-box/origin removed; loops iterate from origin)
+        lower        : (int, int, int)
+            Minimum bounds of cropped region
         smoothedMatrix : array[float]
             3D guidance matrix
         label        : int
@@ -153,12 +155,12 @@ def pointWiseProcess(gx, gy, gz, dx, smoothedMatrix, label,
     """
     ApplyDistanceFilter = []
 
-    for k in np.arange(0, gx, dx[0]):
-        for j in np.arange(0, gy, dx[1]):
-            for i in np.arange(0, gz, dx[2]):
-                px = round(k / dx[0])
-                py = round(j / dx[1])
-                pz = round(i / dx[2])
+    for k in np.arange(lower[0], gx + lower[0], dx[0]):
+        for j in np.arange(lower[1], gy + lower[1], dx[1]):
+            for i in np.arange(lower[2], gz + lower[2], dx[2]):
+                px = round((k - lower[0]) / dx[0]) + int(lower[0] / dx[0])
+                py = round((j - lower[1]) / dx[1]) + int(lower[1] / dx[1])
+                pz = round((i - lower[2]) / dx[2]) + int(lower[2] / dx[2])
 
                 # A point is ignored if its corresponding point on the 
                 # smoothed matrix is 1 or 0
@@ -168,6 +170,6 @@ def pointWiseProcess(gx, gy, gz, dx, smoothedMatrix, label,
                     continue 
                 else:
                     ApplyDistanceFilter.append(
-                        [i, j, k])
+                        [i - lower[2], j - lower[1], k - lower[0]])
 
     return background, ApplyDistanceFilter

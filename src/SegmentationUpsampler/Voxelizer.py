@@ -84,6 +84,7 @@ License along with pySegmentationUpsampler. If not, see
 
         # Get spatial parameters for voxelization
         self.gx, self.gy, self.gz = np.shape(self.binImg.croppedImg)
+        self.lower = self.binImg.bounds[0]
 
     def voxeliseMesh(self):
         """
@@ -109,13 +110,13 @@ License along with pySegmentationUpsampler. If not, see
         dx = self.segImg.dx
 
         # Process voxels in cropped region
-        for k in np.arange(0, self.gx, dx[0]):
-            for j in np.arange(0, self.gy, dx[1]):
-                for i in np.arange(0, self.gz, dx[2]):
+        for k in np.arange(self.lower[0], self.gx + self.lower[0], dx[0]):
+            for j in np.arange(self.lower[1], self.gy + self.lower[1], dx[1]):
+                for i in np.arange(self.lower[2], self.gz + self.lower[2], dx[2]):
                     # Convert to output grid coordinates
-                    px = round(k/dx[0])
-                    py = round(j/dx[1])
-                    pz = round(i/dx[2])
+                    px = round((k - self.lower[0])/dx[0]) + int(self.lower[0]/dx[0])
+                    py = round((j - self.lower[1])/dx[1]) + int(self.lower[1]/dx[1])
+                    pz = round((i - self.lower[2])/dx[2]) + int(self.lower[2]/dx[2])
 
                     # Apply pre-computed guidance matrix
                     sm_val = self.smoothedMatrix[int(k), int(j), int(i)]
@@ -125,7 +126,9 @@ License along with pySegmentationUpsampler. If not, see
                         continue  # Skip fully processed areas
                     else:
                         # Resolve boundary regions with mesh testing
-                        point = np.array([i, j, k], dtype=float)
+                        point = np.array([i-self.lower[2], 
+                                        j-self.lower[1], 
+                                        k-self.lower[0]], dtype=float)
                         if distanceFilter.EvaluateFunction(point) < 0:
                             self.background[px, py, pz] = self.label
                         

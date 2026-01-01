@@ -67,6 +67,7 @@ License along with pySegmentationUpsampler. If not, see
 
         # Image data containers
         self.smoothMatrix = None   # Smoothed intensity field
+        self.nonZeroShape = None   # Bounding box of non-zero region
         self.croppedMatrix = None  # Cropped region-of-interest
 
     def getVolume(self):
@@ -200,14 +201,15 @@ License along with pySegmentationUpsampler. If not, see
         """Crop image to minimal non-zero bounding box.
         
         RETURNS:
-            numpy.ndarray: croppedMatrix
+            tuple: (croppedMatrix, nonZeroShape)
         """
         nonZeroLabels = np.nonzero(image)
         lowerBound = np.min(nonZeroLabels, axis=1)
         upperBound = np.max(nonZeroLabels, axis=1) + 1
-        return image[lowerBound[0]:upperBound[0], 
+        return (image[lowerBound[0]:upperBound[0], 
                      lowerBound[1]:upperBound[1], 
-                     lowerBound[2]:upperBound[2]]
+                     lowerBound[2]:upperBound[2]],
+                (lowerBound, upperBound))
 
     def meshPreprocessing(self):
         """Full preprocessing pipeline:
@@ -218,11 +220,12 @@ License along with pySegmentationUpsampler. If not, see
         """
         self.setSigma()
         self.smoothMatrix = self.applyGaussianFilter(self.originalImg)
-        self.croppedMatrix = self.cropLabels(self.smoothMatrix)
+        self.croppedMatrix, self.nonZeroShape = self.cropLabels(self.smoothMatrix)
         self.croppedMatrix =  np.ascontiguousarray(self.croppedMatrix)
         self.setIsovalue()
 
     def updateImg(self):
         """Store processed data in BinaryImage container."""
         self.binaryImg.setPreprocessedImg(self.smoothMatrix, 
-                        self.croppedMatrix)
+                                        self.croppedMatrix, 
+                                        self.nonZeroShape)
