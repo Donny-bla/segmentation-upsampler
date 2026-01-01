@@ -11,12 +11,10 @@ src/SegmentationUpsampler/UpsampleMultiLabels.py
 src/SegmentationUpsampler/Voxelizer.py
 src/SegmentationUpsampler/VoxelizerNumba.py
 src/SegmentationUpsampler/__init__.py
+src/examples/UpsamplerTest.py
 src/examples/runPythonFunction.py
 src/pySegUpsampler.egg-info/PKG-INFO
 src/pySegUpsampler.egg-info/SOURCES.txt
 src/pySegUpsampler.egg-info/dependency_links.txt
 src/pySegUpsampler.egg-info/requires.txt
 src/pySegUpsampler.egg-info/top_level.txt
-src/test/__init__.py
-src/test/test_pipeline.py
-src/test/test_upsample_multilabels.py
